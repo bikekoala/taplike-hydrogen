@@ -123,7 +123,7 @@ function redirectToFirstVariant({product, request}) {
   }
 
   return redirect(
-    `/products/${product.handle}?${searchParams.toString()}`,
+    `/products/${encodeURIComponent(product.handle)}?${searchParams.toString()}`,
     302,
   );
 }
