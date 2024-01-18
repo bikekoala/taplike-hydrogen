@@ -143,14 +143,9 @@ export default function Product() {
             className="w-full lg:col-span-2"
           />
           <div className="sticky md:-mb-nav md:top-nav md:-translate-y-nav md:h-screen md:pt-nav hiddenScroll md:overflow-y-scroll">
-            <section className="flex flex-col w-full max-w-xl gap-8 p-6 md:mx-auto md:max-w-sm md:px-0">
-              <div className="grid gap-2">
-                <Heading as="h1" className="whitespace-normal">
-                  {title}
-                </Heading>
-                {vendor && (
-                  <Text className={'opacity-50 font-medium'}>{vendor}</Text>
-                )}
+            <section className="flex flex-col w-full max-w-xl gap-8 px-6 py-0 md:mx-auto md:max-w-sm md:px-0">
+              <div className="grid gap-1">
+                <h3 className="font-bold">{title}</h3>
               </div>
               <Suspense fallback={<ProductForm variants={[]} />}>
                 <Await
@@ -164,13 +159,12 @@ export default function Product() {
                   )}
                 </Await>
               </Suspense>
+              <div className='h-[1px] bg-primary/10 w-full'></div>
+              <div
+                className="prose dark:prose-invert -mt-6 text-sm"
+                dangerouslySetInnerHTML={{__html: descriptionHtml}}
+              />
               <div className="grid gap-4 py-4">
-                {descriptionHtml && (
-                  <ProductDetail
-                    title="Product Details"
-                    content={descriptionHtml}
-                  />
-                )}
                 {shippingPolicy?.body && (
                   <ProductDetail
                     title="Shipping"
@@ -190,7 +184,7 @@ export default function Product() {
           </div>
         </div>
       </Section>
-      <Suspense fallback={<Skeleton className="h-32" />}>
+      {/* <Suspense fallback={<Skeleton className="h-32" />}>
         <Await
           errorElement="There was a problem loading related products"
           resolve={recommended}
@@ -199,7 +193,7 @@ export default function Product() {
             <ProductSwimlane title="Related Products" products={products} />
           )}
         </Await>
-      </Suspense>
+      </Suspense> */}
     </>
   );
 }
@@ -318,7 +312,7 @@ export function ProductForm({variants}) {
                         replace
                         className={clsx(
                           'leading-none py-1 border-b-[1.5px] cursor-pointer transition-all duration-200',
-                          isActive ? 'border-primary/50' : 'border-primary/0',
+                          isActive ? 'border-primary/50 text-[#EE1D52] border-[#EE1D52]' : 'border-primary/0',
                           isAvailable ? 'opacity-100' : 'opacity-50',
                         )}
                       >
@@ -344,7 +338,8 @@ export function ProductForm({variants}) {
                     merchandiseId: selectedVariant.id,
                     quantity: 1,
                   },
-                ]}
+                  ]}
+                className='bg-[#EE1D52] text-white py-2 rounded font-bold'
                 variant="primary"
                 data-test="add-to-cart"
                 analytics={{

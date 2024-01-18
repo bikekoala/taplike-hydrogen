@@ -46,7 +46,7 @@ export function Layout({children, layout}) {
           {children}
         </main>
       </div>
-      {footerMenu && <Footer menu={footerMenu} />}
+      {/* {footerMenu && <Footer menu={footerMenu} />} */}
     </>
   );
 }
@@ -187,7 +187,7 @@ function MobileHeader({title, isHome, openCart, openMenu}) {
           : 'bg-contrast/80 text-primary'
       } flex lg:hidden items-center h-nav sticky backdrop-blur-lg z-40 top-0 justify-between w-full leading-none gap-4 px-4 md:px-8`}
     >
-      <div className="flex items-center justify-start w-full gap-4">
+      {/* <div className="flex items-center justify-start w-full gap-4">
         <button
           onClick={openMenu}
           className="relative flex items-center justify-center w-8 h-8"
@@ -217,10 +217,10 @@ function MobileHeader({title, isHome, openCart, openMenu}) {
             name="q"
           />
         </Form>
-      </div>
+      </div> */}
 
       <Link
-        className="flex items-center self-stretch leading-[3rem] md:leading-[4rem] justify-center flex-grow w-full h-full"
+        className="flex items-center self-stretch leading-[3rem] md:leading-[4rem] justify-center flex-grow h-full"
         to="/"
       >
         <Heading
@@ -232,7 +232,7 @@ function MobileHeader({title, isHome, openCart, openMenu}) {
       </Link>
 
       <div className="flex items-center justify-end w-full gap-4">
-        <AccountLink className="relative flex items-center justify-center w-8 h-8" />
+        {/* <AccountLink className="relative flex items-center justify-center w-8 h-8" /> */}
         <CartCount isHome={isHome} openCart={openCart} />
       </div>
     </header>
