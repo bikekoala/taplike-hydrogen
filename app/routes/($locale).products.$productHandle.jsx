@@ -123,10 +123,20 @@ function redirectToFirstVariant({product, request}) {
   }
 
   return redirect(
-    `/products/${encodeURIComponent(product.handle)}?${searchParams.toString()}`,
+    `/products/${encodeURIComponent(
+      product.handle,
+    )}?${searchParams.toString()}`,
     302,
   );
 }
+
+/**
+ * @type {ActionFunction}
+ */
+export const action = async ({request, context}) => {
+  const formData = await request.formData();
+  console.log('9999');
+};
 
 export default function Product() {
   /** @type {LoaderReturnData} */
@@ -159,7 +169,7 @@ export default function Product() {
                   )}
                 </Await>
               </Suspense>
-              <div className='h-[1px] bg-primary/10 w-full'></div>
+              <div className="h-[1px] bg-primary/10 w-full"></div>
               <div
                 className="prose dark:prose-invert -mt-6 text-sm"
                 dangerouslySetInnerHTML={{__html: descriptionHtml}}
@@ -312,7 +322,9 @@ export function ProductForm({variants}) {
                         replace
                         className={clsx(
                           'leading-none py-1 border-b-[1.5px] cursor-pointer transition-all duration-200',
-                          isActive ? 'border-primary/50 text-[#EE1D52] border-[#EE1D52]' : 'border-primary/0',
+                          isActive
+                            ? 'border-primary/50 text-[#EE1D52] border-[#EE1D52]'
+                            : 'border-primary/0',
                           isAvailable ? 'opacity-100' : 'opacity-50',
                         )}
                       >
@@ -338,8 +350,8 @@ export function ProductForm({variants}) {
                     merchandiseId: selectedVariant.id,
                     quantity: 1,
                   },
-                  ]}
-                className='bg-[#EE1D52] text-white py-2 rounded font-bold'
+                ]}
+                className="bg-[#EE1D52] text-white py-2 rounded font-bold"
                 variant="primary"
                 data-test="add-to-cart"
                 analytics={{
@@ -368,6 +380,14 @@ export function ProductForm({variants}) {
                 </Text>
               </AddToCartButton>
             )}
+            <button
+              className="bg-primary text-contrast rounded py-2 px-4 focus:shadow-outline block w-full"
+              onClick={() => {
+                window.location.href = `/checkout/${selectedVariant?.id.split('/')[4]}`;
+              }}
+            >
+              Checkout
+            </button>
             {!isOutOfStock && (
               <ShopPayButton
                 width="100%"
@@ -584,6 +604,7 @@ async function getRecommendedProducts(storefront, productId) {
   return {nodes: mergedProducts};
 }
 
+/** @typedef {import('@shopify/remix-oxygen').ActionFunction} ActionFunction */
 /** @typedef {import('@shopify/remix-oxygen').LoaderFunctionArgs} LoaderFunctionArgs */
 /** @typedef {import('@shopify/hydrogen').ShopifyAnalyticsProduct} ShopifyAnalyticsProduct */
 /** @typedef {import('storefrontapi.generated').ProductQuery} ProductQuery */

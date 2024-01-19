@@ -999,6 +999,16 @@ export type ApiAllProductsQuery = {
   };
 };
 
+export type CheckoutCreateMutationVariables = StorefrontAPI.Exact<{
+  [key: string]: never;
+}>;
+
+export type CheckoutCreateMutation = {
+  checkoutCreate?: StorefrontAPI.Maybe<{
+    checkout?: StorefrontAPI.Maybe<Pick<StorefrontAPI.Checkout, 'webUrl'>>;
+  }>;
+};
+
 export type CollectionDetailsQueryVariables = StorefrontAPI.Exact<{
   handle: StorefrontAPI.Scalars['String']['input'];
   country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
@@ -1822,6 +1832,10 @@ interface GeneratedMutationTypes {
   '#graphql\n  mutation customerReset($id: ID!, $input: CustomerResetInput!) {\n    customerReset(id: $id, input: $input) {\n      customerAccessToken {\n        accessToken\n        expiresAt\n      }\n      customerUserErrors {\n        code\n        field\n        message\n      }\n    }\n  }\n': {
     return: CustomerResetMutation;
     variables: CustomerResetMutationVariables;
+  };
+  '#graphql\n    mutation checkoutCreate {\n      checkoutCreate(\n        input: {\n          lineItems: [\n            {variantId: "gid://shopify/ProductVariant/#REQUIRED_VAR=variantId", quantity: 1}\n          ]\n        }\n      ) {\n        checkout {\n          webUrl\n        }\n      }\n    }\n    ': {
+    return: CheckoutCreateMutation;
+    variables: CheckoutCreateMutationVariables;
   };
 }
 
