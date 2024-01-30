@@ -175,6 +175,7 @@ shop-pay-button {
   }
 
   .card-image {
+    width: 100vw;
     @apply relative flex items-center justify-center overflow-clip rounded;
     &::before {
       content: ' ';

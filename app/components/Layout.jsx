@@ -3,6 +3,9 @@ import {useWindowScroll} from 'react-use';
 import {Disclosure} from '@headlessui/react';
 import {Suspense, useEffect, useMemo} from 'react';
 import {CartForm} from '@shopify/hydrogen';
+import {Back, Application, HeadsetOne} from '@icon-park/react'
+import giftImg from '../../public/images/gift.png'
+import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure} from "@nextui-org/react";
 import {
   Drawer,
   useDrawer,
@@ -20,6 +23,7 @@ import {
   Cart,
   CartLoading,
   Link,
+  CustomButton,
 } from '~/components';
 import {useIsHomePath} from '~/lib/utils';
 import {useIsHydrated} from '~/hooks/useIsHydrated';
@@ -31,22 +35,53 @@ import {useRootLoaderData} from '~/root';
  */
 export function Layout({children, layout}) {
   const {headerMenu, footerMenu} = layout || {};
+  const {isOpen, onOpen, onOpenChange} = useDisclosure();
+  const isHome = useIsHomePath()
+
   return (
     <>
-      <div className="flex flex-col min-h-screen">
+    
+      <div className="flex flex-col h-screen">
+      {/* <div className="flex flex-col min-h-screen"> */}
         <div className="">
           <a href="#mainContent" className="sr-only">
             Skip to content
           </a>
         </div>
         {headerMenu && layout?.shop.name && (
-          <Header title={layout.shop.name} menu={headerMenu} />
+          <Header title={layout.shop.name} menu={headerMenu} onOpen={onOpen}/>
         )}
         <main role="main" id="mainContent" className="flex-grow">
           {children}
         </main>
+        {isHome == false && (<MobileFooter/>)}
       </div>
       {/* {footerMenu && <Footer menu={footerMenu} />} */}
+
+      {/* 弹窗遮罩 */}
+      <Modal
+      // isOpen={true}
+      size='xs'
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      placement={'center'}
+      backdrop={'opaque'}
+      // style="background-image: url({})"
+      >
+        <ModalContent>
+          <ModalHeader className="flex flex-col gap-1"></ModalHeader>
+          <ModalBody>
+            <div className='discount-box flex flex-col justify-center items-center'>
+              <div className='mb-2'>
+                <img src={giftImg} alt="" className='w-16'/>
+              </div>
+              <div className='text-2xl font-medium mb-2'>Sale!</div>
+              <div className='text-3xl font-bold mb-4'>20% DISCOUNT</div>
+              <div className='text-2xl font-medium mb-4 w-full flex justify-center items-center h-10 rounded bg-red-500 text-white'>BUY NOW</div>
+            </div>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </>
   );
 }
@@ -54,7 +89,7 @@ export function Layout({children, layout}) {
 /**
  * @param {{title: string; menu?: EnhancedMenu}}
  */
-function Header({title, menu}) {
+function Header({title, menu, onOpen}) {
   const isHome = useIsHomePath();
 
   const {
@@ -90,10 +125,12 @@ function Header({title, menu}) {
         openCart={openCart}
       />
       <MobileHeader
-        isHome={isHome}
+        isHome={true}
+        // isHome={isHome}
         title={title}
         openCart={openCart}
         openMenu={openMenu}
+        onOpen={onOpen}
       />
     </>
   );
@@ -173,20 +210,29 @@ function MenuMobileNav({menu, onClose}) {
  *   openMenu: () => void;
  * }}
  */
-function MobileHeader({title, isHome, openCart, openMenu}) {
+function MobileHeader({title, isHome, openCart, openMenu, onOpen}) {
   // useHeaderStyleFix(containerStyle, setContainerStyle, isHome);
-
+  
   const params = useParams();
 
+  const clickBackBtn = (e) => {
+    e.stopPropagation()
+    onOpen()
+  }
+
   return (
+
     <header
       role="banner"
       className={`${
         isHome
           ? 'bg-primary/80 dark:bg-contrast/60 text-contrast dark:text-primary shadow-darkHeader'
-          : 'bg-contrast/80 text-primary'
-      } flex lg:hidden items-center h-nav sticky backdrop-blur-lg z-40 top-0 justify-between w-full leading-none gap-4 px-4 md:px-8`}
+          : 'bg-primary/80 dark:bg-contrast/60 text-contrast dark:text-primary shadow-darkHeader'
+      } flex items-center h-14 fixed lg:hidden backdrop-blur-lg z-40 top-0 justify-between w-full leading-none gap-4 px-4 md:px-8`}
+      // } flex lg:hidden items-center h-14 sticky backdrop-blur-lg z-40 top-0 justify-between w-full leading-none gap-4 px-4 md:px-8`}
     >
+
+
       {/* <div className="flex items-center justify-start w-full gap-4">
         <button
           onClick={openMenu}
@@ -219,17 +265,21 @@ function MobileHeader({title, isHome, openCart, openMenu}) {
         </Form>
       </div> */}
 
-      <Link
+      {/* <Link
         className="flex items-center self-stretch leading-[3rem] md:leading-[4rem] justify-center flex-grow h-full"
         to="/"
-      >
+      > */}
         <Heading
           className="font-bold text-center leading-none"
           as={isHome ? 'h1' : 'h2'}
         >
-          {title}
+          <div className='flex flex-row justify-center items-center' onClick={(e) => clickBackBtn(e)}>
+            <Back theme="outline" size="24" fill="#ffffff" className='mr-1'/>
+            <span>BACK</span>
+          </div>
+          {/* {title} */}
         </Heading>
-      </Link>
+      {/* </Link> */}
 
       <div className="flex items-center justify-end w-full gap-4">
         {/* <AccountLink className="relative flex items-center justify-center w-8 h-8" /> */}
@@ -237,6 +287,28 @@ function MobileHeader({title, isHome, openCart, openMenu}) {
       </div>
     </header>
   );
+}
+
+/**
+ * 
+ */
+function MobileFooter() {
+  return (
+    <div className='fixed inset-x-0 bottom-0 bg-white flex flex-col justify-center items-center text-xl font-bold'>
+      <div className='divide-line w-screen h-px bg-gray-200'>
+        <div className='h-px bg-gray-200'></div>
+      </div>
+      <div className='flex flex-row w-full px-4 justify-between items-center h-16'>
+        <div className='mobile-footer-left-box flex flex-row justify-center items-center mr-5'>
+          <Application theme="outline" size="20" fill="#4a4a4a" className='mr-3'/>
+          <HeadsetOne theme="outline" size="20" fill="#4a4a4a"/>
+        </div>
+        <div className='mobile-footer-right-box flex justify-center items-center flex-1 h-11 bg-rose-500 rounded-sm text-white text-base'>
+          Buy now
+        </div>
+      </div>
+    </div>
+  )
 }
 
 /**
