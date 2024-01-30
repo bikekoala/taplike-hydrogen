@@ -13,6 +13,7 @@ import {
 } from '@remix-run/react';
 import {ShopifySalesChannel, Seo, useNonce} from '@shopify/hydrogen';
 import invariant from 'tiny-invariant';
+import {NextUIProvider} from "@nextui-org/react";
 
 import {Layout} from '~/components';
 import {seoPayload} from '~/lib/seo.server';
@@ -24,6 +25,7 @@ import {NotFound} from './components/NotFound';
 import styles from './styles/app.css';
 import {DEFAULT_LOCALE, parseMenu} from './lib/utils';
 import {useAnalytics} from './hooks/useAnalytics';
+import '@icon-park/react/styles/index.css'
 
 // This is important to avoid re-fetching root queries on sub-navigations
 /**
@@ -105,26 +107,28 @@ export default function App() {
 
   return (
     <html lang={locale.language}>
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <meta name="msvalidate.01" content="A352E6A0AF9A652267361BBB572B8468" />
-        <Seo />
-        <Meta />
-        <Links />
-      </head>
-      <body>
-        <Layout
-          key={`${locale.language}-${locale.country}`}
-          layout={data.layout}
-        >
-          <Outlet />
-        </Layout>
-        <ScrollRestoration nonce={nonce} />
-        <Scripts nonce={nonce} />
-        <LiveReload nonce={nonce} />
-      </body>
-    </html>
+        <head>
+          <meta charSet="utf-8" />
+          <meta name="viewport" content="width=device-width,initial-scale=1" />
+          <meta name="msvalidate.01" content="A352E6A0AF9A652267361BBB572B8468" />
+          <Seo />
+          <Meta />
+          <Links />
+        </head>
+        <body>
+        <NextUIProvider>
+          <Layout
+            key={`${locale.language}-${locale.country}`}
+            layout={data.layout}
+          >
+            <Outlet />
+          </Layout>
+        </NextUIProvider>
+          <ScrollRestoration nonce={nonce} />
+          <Scripts nonce={nonce} />
+          <LiveReload nonce={nonce} />
+        </body>
+      </html>
   );
 }
 

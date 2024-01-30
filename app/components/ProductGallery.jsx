@@ -14,7 +14,7 @@ export function ProductGallery({media, className}) {
 
   return (
     <div
-      className={`swimlane md:grid-flow-row hiddenScroll md:p-0 md:overflow-x-auto md:grid-cols-2 ${className}`}
+      className={`swimlane md:grid-flow-row w-screen hiddenScroll md:p-0 md:overflow-x-auto md:grid-cols-2 p-0 gap-0 ${className}`}
     >
       {media.map((med, i) => {
         const isFirst = i === 0;
@@ -41,9 +41,14 @@ export function ProductGallery({media, className}) {
                 aspectRatio={!isFirst && !isFourth ? '4/5' : undefined}
                 sizes={
                   isFirst || isFourth
-                    ? '(min-width: 48em) 60vw, 90vw'
-                    : '(min-width: 48em) 30vw, 90vw'
+                    ? '(min-width: 48em) 100vw, 100vw'
+                    : '(min-width: 48em) 100vw, 100vw'
                 }
+                // sizes={
+                //   isFirst || isFourth
+                //     ? '(min-width: 48em) 60vw, 90vw'
+                //     : '(min-width: 48em) 30vw, 90vw'
+                // }
                 className="object-cover w-full h-full aspect-square fadeIn"
               />
             )}
