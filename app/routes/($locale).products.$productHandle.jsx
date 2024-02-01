@@ -1,7 +1,10 @@
-import {useRef, Suspense} from 'react';
+import {useRef, useEffect, Suspense} from 'react';
 import {Disclosure, Listbox} from '@headlessui/react';
-import {defer, redirect} from '@shopify/remix-oxygen';
-import {useLoaderData, Await} from '@remix-run/react';
+import {json, defer} from '@shopify/remix-oxygen';
+import {useLoaderData, useActionData, Await, Form} from '@remix-run/react';
+import {v4 as uuidv4} from 'uuid';
+import Cookies from 'js-cookie';
+
 import {
   AnalyticsPageType,
   Money,
@@ -17,9 +20,7 @@ import {
   IconCheck,
   IconClose,
   ProductGallery,
-  ProductSwimlane,
   Section,
-  Skeleton,
   Text,
   Link,
   AddToCartButton,
@@ -28,7 +29,7 @@ import {
 import {getExcerpt} from '~/lib/utils';
 import {seoPayload} from '~/lib/seo.server';
 import {routeHeaders} from '~/data/cache';
-import {MEDIA_FRAGMENT, PRODUCT_CARD_FRAGMENT} from '~/data/fragments';
+import {MEDIA_FRAGMENT} from '~/data/fragments';
 
 export const headers = routeHeaders;
 
@@ -54,10 +55,6 @@ export async function loader({params, request, context}) {
     throw new Response('product', {status: 404});
   }
 
-  if (!product.selectedVariant) {
-    throw redirectToFirstVariant({product, request});
-  }
-
   // In order to show which variants are available in the UI, we need to query
   // all of them. But there might be a *lot*, so instead separate the variants
   // into it's own separate query that is deferred. So there's a brief moment
@@ -70,8 +67,6 @@ export async function loader({params, request, context}) {
       language: context.storefront.i18n.language,
     },
   });
-
-  const recommended = getRecommendedProducts(context.storefront, product.id);
 
   // TODO: firstVariant is never used because we will always have a selectedVariant due to redirect
   // Investigate if we can avoid the redirect for product pages with no search params for first variant
@@ -98,7 +93,6 @@ export async function loader({params, request, context}) {
     product,
     shop,
     storeDomain: shop.primaryDomain.url,
-    recommended,
     analytics: {
       pageType: AnalyticsPageType.product,
       resourceId: product.id,
@@ -110,39 +104,64 @@ export async function loader({params, request, context}) {
 }
 
 /**
- * @param {{
- *   product: ProductQuery['product'];
- *   request: Request;
- * }}
- */
-function redirectToFirstVariant({product, request}) {
-  const searchParams = new URLSearchParams(new URL(request.url).search);
-  const firstVariant = product.variants.nodes[0];
-  for (const option of firstVariant.selectedOptions) {
-    searchParams.set(option.name, option.value);
-  }
-
-  return redirect(
-    `/products/${encodeURIComponent(
-      product.handle,
-    )}?${searchParams.toString()}`,
-    302,
-  );
-}
-
-/**
- * @type {ActionFunction}
+ * 处理 当前路由 POST 请求
  */
 export const action = async ({request, context}) => {
   const formData = await request.formData();
-  console.log('9999');
+  const variantGid = formData.get('variantGid');
+  const discountCode = formData.get('discountCode');
+
+  // 生成结账链接
+  if (variantGid) {
+    const variantId = variantGid.split('/')[4];
+    const checkout = await createCheckout(context.storefront, variantId);
+    const checkoutId = new URL(checkout.webUrl).pathname.split('/')[3];
+    const checkoutGid = checkout.id;
+    const checkoutUrl = checkout.webUrl;
+
+    // 应用折扣码
+    if (discountCode) {
+      await applyCheckoutDiscountCode(
+        context.storefront,
+        checkoutGid,
+        discountCode,
+      );
+    }
+
+    return json({variantId, checkoutUrl, checkoutId});
+  }
+
+  return null;
 };
 
 export default function Product() {
   /** @type {LoaderReturnData} */
-  const {product, shop, recommended, variants} = useLoaderData();
-  const {media, title, vendor, descriptionHtml} = product;
+  const {product, shop, variants} = useLoaderData();
+  const {media, title, descriptionHtml} = product;
   const {shippingPolicy, refundPolicy} = shop;
+  const actionData = useActionData();
+
+  // 事件统计
+  useEffect(() => {
+    if (actionData && actionData.checkoutUrl) {
+      // 开始下单
+      sendPageEvent(
+        'InitiateCheckout',
+        shop,
+        product,
+        actionData.variantId,
+        actionData.checkoutId,
+      );
+    } else {
+      // 加载页面
+      sendPageEvent('ViewContent', shop, product);
+    }
+  }, [actionData]);
+
+  // 跳转到结账页面
+  if (actionData && actionData.checkoutUrl) {
+    window.location.href = actionData.checkoutUrl;
+  }
 
   return (
     <>
@@ -194,16 +213,6 @@ export default function Product() {
           </div>
         </div>
       </Section>
-      {/* <Suspense fallback={<Skeleton className="h-32" />}>
-        <Await
-          errorElement="There was a problem loading related products"
-          resolve={recommended}
-        >
-          {(products) => (
-            <ProductSwimlane title="Related Products" products={products} />
-          )}
-        </Await>
-      </Suspense> */}
     </>
   );
 }
@@ -215,7 +224,7 @@ export default function Product() {
  */
 export function ProductForm({variants}) {
   /** @type {LoaderReturnData} */
-  const {product, analytics, storeDomain} = useLoaderData();
+  const {shop, product, analytics, storeDomain} = useLoaderData();
 
   const closeRef = useRef(null);
 
@@ -380,14 +389,28 @@ export function ProductForm({variants}) {
                 </Text>
               </AddToCartButton>
             )}
-            <button
-              className="bg-primary text-contrast rounded py-2 px-4 focus:shadow-outline block w-full"
-              onClick={() => {
-                window.location.href = `/checkout/${selectedVariant?.id.split('/')[4]}`;
-              }}
-            >
-              Checkout
-            </button>
+            {!isOutOfStock && (
+              /*
+              <button
+                className="bg-primary text-contrast rounded py-2 px-4 focus:shadow-outline block w-full font-bold"
+                onClick={() => {
+                  beginCheckout(selectedVariant);
+                }}
+              >
+                Checkout
+              </button>
+              */
+              <Form method="post" name="">
+                <input
+                  type="hidden"
+                  name="variantGid"
+                  value={selectedVariant?.id}
+                />
+                <button className="bg-primary text-contrast rounded py-2 px-4 focus:shadow-outline block w-full font-bold">
+                  Checkout
+                </button>
+              </Form>
+            )}
             {!isOutOfStock && (
               <ShopPayButton
                 width="100%"
@@ -526,6 +549,7 @@ const PRODUCT_QUERY = `#graphql
       name
       primaryDomain {
         url
+        host
       }
       shippingPolicy {
         body
@@ -558,56 +582,108 @@ const VARIANTS_QUERY = `#graphql
   ${PRODUCT_VARIANT_FRAGMENT}
 `;
 
-const RECOMMENDED_PRODUCTS_QUERY = `#graphql
-  query productRecommendations(
-    $productId: ID!
-    $count: Int
-    $country: CountryCode
-    $language: LanguageCode
-  ) @inContext(country: $country, language: $language) {
-    recommended: productRecommendations(productId: $productId) {
-      ...ProductCard
-    }
-    additional: products(first: $count, sortKey: BEST_SELLING) {
-      nodes {
-        ...ProductCard
+/**
+ * 创建结账链接
+ */
+async function createCheckout(storefront, variantId) {
+  const CHECKOUT_CREATE = `#graphql
+    mutation CheckoutCreate {
+      checkoutCreate(
+        input: {
+          lineItems: [
+            {variantId: "gid://shopify/ProductVariant/${variantId}", quantity: 1}
+          ]
+        }
+      ) {
+        checkout {
+          id
+          webUrl
+        }
       }
     }
-  }
-  ${PRODUCT_CARD_FRAGMENT}
-`;
-
-/**
- * @param {Storefront} storefront
- * @param {string} productId
- */
-async function getRecommendedProducts(storefront, productId) {
-  const products = await storefront.query(RECOMMENDED_PRODUCTS_QUERY, {
-    variables: {productId, count: 12},
-  });
-
-  invariant(products, 'No data returned from Shopify API');
-
-  const mergedProducts = (products.recommended ?? [])
-    .concat(products.additional.nodes)
-    .filter(
-      (value, index, array) =>
-        array.findIndex((value2) => value2.id === value.id) === index,
-    );
-
-  const originalProduct = mergedProducts.findIndex(
-    (item) => item.id === productId,
-  );
-
-  mergedProducts.splice(originalProduct, 1);
-
-  return {nodes: mergedProducts};
+    `;
+  const {checkoutCreate} = await storefront.mutate(CHECKOUT_CREATE);
+  return checkoutCreate.checkout;
 }
 
-/** @typedef {import('@shopify/remix-oxygen').ActionFunction} ActionFunction */
-/** @typedef {import('@shopify/remix-oxygen').LoaderFunctionArgs} LoaderFunctionArgs */
-/** @typedef {import('@shopify/hydrogen').ShopifyAnalyticsProduct} ShopifyAnalyticsProduct */
-/** @typedef {import('storefrontapi.generated').ProductQuery} ProductQuery */
-/** @typedef {import('storefrontapi.generated').ProductVariantFragmentFragment} ProductVariantFragmentFragment */
-/** @typedef {import('~/lib/type').Storefront} Storefront */
-/** @typedef {import('@shopify/remix-oxygen').SerializeFrom<typeof loader>} LoaderReturnData */
+/**
+ * 创建结账链接
+ */
+async function applyCheckoutDiscountCode(storefront, checkoutId, discountCode) {
+  const CHECKOUT_DISCOUNT_CODE_APPLY_V2 = `#graphql
+    mutation CheckoutDiscountCodeApplyV2(
+      $discountCode: String!
+      $checkoutId: ID!
+    ) {
+      checkoutDiscountCodeApplyV2(discountCode: $discountCode, checkoutId: $checkoutId) {
+        checkout {
+          id
+        }
+      }
+    }
+    `;
+  await storefront.mutate(CHECKOUT_DISCOUNT_CODE_APPLY_V2, {
+    variables: {checkoutId, discountCode},
+  });
+}
+
+/**
+ * 发送页面事件到服务端
+ * event: ViewContent, InitiateCheckout
+ * @see https://business-api.tiktok.com/portal/docs?id=1741601162187777
+ */
+function sendPageEvent(
+  event,
+  shop,
+  product,
+  variantId = null,
+  checkoutId = null,
+) {
+  const _getCidInfo = () => {
+    const ret = {source: 'web', cid: null};
+    const searchParams = new URLSearchParams(window.location.search);
+    const ttclid = searchParams.get('ttclid');
+    if (ttclid) {
+      ret.source = 'tiktok';
+      ret.cid = ttclid;
+    }
+    return ret;
+  };
+
+  const _getUserId = () => {
+    let userId = Cookies.get('_user_id');
+    if (!userId) {
+      userId = uuidv4();
+      Cookies.set('_user_id', userId, {expires: 365});
+    }
+    return userId;
+  };
+
+  let data = {};
+  const cidInfo = _getCidInfo();
+  data.source = cidInfo.source;
+  data.shop = shop.primaryDomain.host;
+  data.event = event;
+  data.eventId = uuidv4();
+  data.userId = _getUserId();
+  data.cid = cidInfo.cid;
+  data.page = window.location.href;
+  data.checkoutId = checkoutId;
+  data.productId = product.id.split('/')[4];
+  data.productVariantId = variantId;
+  data.productPrice = Number(product.variants.nodes[0].price.amount);
+  data.productCurrency = product.variants.nodes[0].price.currencyCode;
+  data.productName = product.title;
+  data.productDescription = product.description;
+
+  //const api = 'https://seller.taplike.com/api/hydrogen/trackEvent'
+  const api = 'http://10.20.1.10:30030/common/hydrogen/trackEvent';
+  fetch(api, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Security-Policy': "connect-src 'none';",
+    },
+    body: JSON.stringify(data),
+  });
+}

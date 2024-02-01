@@ -86,6 +86,14 @@ export default {
         return storefrontRedirect({request, response, storefront});
       }
 
+      // 将 第三方 API 域名加入到 CSP
+      let cspHeader = response.headers.get('Content-Security-Policy');
+      cspHeader = cspHeader.replaceAll(
+        ' ws://127.0.0.1:*',
+        ' ws://127.0.0.1:* 10.20.1.10:* https://seller.taplike.com',
+      );
+      response.headers.set('Content-Security-Policy', cspHeader);
+
       return response;
     } catch (error) {
       // eslint-disable-next-line no-console
