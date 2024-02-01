@@ -1,10 +1,10 @@
 import {useParams, Form, Await} from '@remix-run/react';
 import {useWindowScroll} from 'react-use';
 import {Disclosure} from '@headlessui/react';
-import {Suspense, useEffect, useMemo} from 'react';
+import {Suspense, useEffect, useMemo, useState} from 'react';
+import { useLocation } from 'react-use';
 import {CartForm} from '@shopify/hydrogen';
 import {Back, Application, HeadsetOne} from '@icon-park/react'
-import giftImg from '../../public/images/gift.png'
 import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure} from "@nextui-org/react";
 import {
   Drawer,
@@ -23,7 +23,7 @@ import {
   Cart,
   CartLoading,
   Link,
-  CustomButton,
+  DiscountModal
 } from '~/components';
 import {useIsHomePath} from '~/lib/utils';
 import {useIsHydrated} from '~/hooks/useIsHydrated';
@@ -37,10 +37,20 @@ export function Layout({children, layout}) {
   const {headerMenu, footerMenu} = layout || {};
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
   const isHome = useIsHomePath()
+  const [discountModalIndex, setDiscountModalIndex] = useState(0)
+  const { pathname } = useLocation()
+
+  useEffect(() => {
+    setDiscountModalIndex(0)
+  },[pathname])
+
+  const onDiscountModalChange = () => {
+    onOpenChange()
+    setDiscountModalIndex(e => e + 1)
+  }
 
   return (
     <>
-    
       <div className="flex flex-col h-screen">
       {/* <div className="flex flex-col min-h-screen"> */}
         <div className="">
@@ -63,22 +73,15 @@ export function Layout({children, layout}) {
       // isOpen={true}
       size='xs'
       isOpen={isOpen}
-      onOpenChange={onOpenChange}
+      isDismissable={false}
+      onOpenChange={onDiscountModalChange}
       placement={'center'}
       backdrop={'opaque'}
-      // style="background-image: url({})"
       >
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1"></ModalHeader>
           <ModalBody>
-            <div className='discount-box flex flex-col justify-center items-center'>
-              <div className='mb-2'>
-                <img src={giftImg} alt="" className='w-16'/>
-              </div>
-              <div className='text-2xl font-medium mb-2'>Sale!</div>
-              <div className='text-3xl font-bold mb-4'>20% DISCOUNT</div>
-              <div className='text-2xl font-medium mb-4 w-full flex justify-center items-center h-10 rounded bg-red-500 text-white'>BUY NOW</div>
-            </div>
+            <DiscountModal index={discountModalIndex}></DiscountModal>
           </ModalBody>
         </ModalContent>
       </Modal>
@@ -283,7 +286,7 @@ function MobileHeader({title, isHome, openCart, openMenu, onOpen}) {
 
       <div className="flex items-center justify-end w-full gap-4">
         {/* <AccountLink className="relative flex items-center justify-center w-8 h-8" /> */}
-        <CartCount isHome={isHome} openCart={openCart} />
+        {/* <CartCount isHome={isHome} openCart={openCart} /> */}
       </div>
     </header>
   );

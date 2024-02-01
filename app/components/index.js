@@ -13,7 +13,7 @@ export {CartLoading} from './CartLoading';
 export {OrderCard} from './OrderCard';
 export {AccountDetails} from './AccountDetails';
 export {AccountAddressBook} from './AccountAddressBook';
-export {Modal} from './Modal';
+export {Modal, DiscountModal} from './Modal';
 export {Link} from './Link';
 export {FeaturedCollections} from './FeaturedCollections';
 export {Hero} from './Hero';

@@ -37,47 +37,50 @@ export const headers = routeHeaders;
  * @param {LoaderFunctionArgs}
  */
 export async function loader({params, request, context}) {
-  const {productHandle} = params;
-  invariant(productHandle, 'Missing productHandle param, check route filename');
+  const {productId} = params;
+  const completedPid = `gid://shopify/Product/${productId}`
+  invariant(productId, 'Missing productId param, check route filename');
 
-  const selectedOptions = getSelectedProductOptions(request);
-
-  const {shop, product} = await context.storefront.query(PRODUCT_QUERY, {
+  const variants = await context.storefront.query(VARIANTS_QUERY_BY_ID, {
     variables: {
-      handle: productHandle,
-      selectedOptions,
+      id: completedPid,
       country: context.storefront.i18n.country,
       language: context.storefront.i18n.language,
     },
   });
 
-  if (!product?.id) {
-    throw new Response('product', {status: 404});
-  }
+  const selectedOptions = variants.product.variants.nodes[0].selectedOptions;
 
-  if (!product.selectedVariant) {
-    throw redirectToFirstVariant({product, request});
-  }
+  const {shop, product} = await context.storefront.query(PRODUCT_QUERY_BY_ID, {
+    variables: {
+      id: completedPid,
+      country: context.storefront.i18n.country,
+      language: context.storefront.i18n.language,
+      selectedOptions,
+    },
+  });
+
+  // if (!product?.id) {
+  //   throw new Response('product', {status: 404});
+  // }
+
+  // if (!product.selectedVariant) {
+  //   throw redirectToFirstVariant({product, request});
+  // }
 
   // In order to show which variants are available in the UI, we need to query
   // all of them. But there might be a *lot*, so instead separate the variants
   // into it's own separate query that is deferred. So there's a brief moment
   // where variant options might show as available when they're not, but after
   // this deferred query resolves, the UI will update.
-  const variants = context.storefront.query(VARIANTS_QUERY, {
-    variables: {
-      handle: productHandle,
-      country: context.storefront.i18n.country,
-      language: context.storefront.i18n.language,
-    },
-  });
 
   const recommended = getRecommendedProducts(context.storefront, product.id);
 
   // TODO: firstVariant is never used because we will always have a selectedVariant due to redirect
   // Investigate if we can avoid the redirect for product pages with no search params for first variant
   const firstVariant = product.variants.nodes[0];
-  const selectedVariant = product.selectedVariant ?? firstVariant;
+  const selectedVariant = firstVariant;
+  // const selectedVariant = product.selectedVariant ?? firstVariant;
 
   const productAnalytics = {
     productGid: product.id,
@@ -148,6 +151,7 @@ export default function Product() {
   return (
     <>
       <Section className="px-0 md:px-8 lg:px-12">
+
         <div className="grid items-start md:gap-6 lg:gap-20 md:grid-cols-2 lg:grid-cols-3">
           <div className='h-14'></div>
           <ProductGallery
@@ -161,7 +165,7 @@ export default function Product() {
                 <div className='title-area pt-4 pb-4 '>
                   <div className='current-price text-xl font-medium'>{(selectedVariant.price.currencyCode === 'USD' ? '$' : '') + selectedVariant.price.amount || ''}</div>
                   <div className='original-price text-sm text-gray-400 line-through mb-1'>{(selectedVariant.compareAtPrice.currencyCode === 'USD' ? '$' : '') + selectedVariant.compareAtPrice.amount || ''}</div>
-                  <h3 className="font-bold text-sm font-medium">{title}</h3>
+                  <h3 className="font-bold text-base font-medium">{title}</h3>
                 </div>
               </div>
 
@@ -199,12 +203,14 @@ export default function Product() {
                 </div>
 
                 {/* 产品详情描述区域 */}
-                <div className='text-img-area px-4 py-4 text-xs '>
+                <div className='text-img-area px-4 py-4 text-sm '>
                   <div dangerouslySetInnerHTML={{__html: descriptionHtml}}/>
                 </div>
               </div>
-              {/* <Suspense fallback={<ProductForm variants={[]} />}>
-                <Await
+
+
+              {/* <Suspense fallback={<ProductForm variants={[]} />}> */}
+                {/* <Await
                   errorElement="There was a problem loading related products"
                   resolve={variants}
                 >
@@ -213,14 +219,14 @@ export default function Product() {
                       variants={resp.product?.variants.nodes || []}
                     />
                   )}
-                </Await>
-              </Suspense> */}
+                </Await> */}
+              {/* </Suspense> */}
               {/* <div className="h-[1px] bg-primary/10 w-full"></div> */}
               {/* <div
                 className="prose dark:prose-invert -mt-6 text-sm"
                 dangerouslySetInnerHTML={{__html: descriptionHtml}}
               /> */}
-              <div className="grid gap-4 py-4">
+              {/* <div className="grid gap-4 py-4">
                 {shippingPolicy?.body && (
                   <ProductDetail
                     title="Shipping"
@@ -235,12 +241,12 @@ export default function Product() {
                     learnMore={`/policies/${refundPolicy.handle}`}
                   />
                 )}
-              </div>
+              </div> */}
             </section>
           </div>
         </div>
       </Section>
-      {/* <Suspense fallback={<Skeleton className="h-32" />}>
+      <Suspense fallback={<Skeleton className="h-32" />}>
         <Await
           errorElement="There was a problem loading related products"
           resolve={recommended}
@@ -249,7 +255,7 @@ export default function Product() {
             <ProductSwimlane title="Related Products" products={products} />
           )}
         </Await>
-      </Suspense> */}
+      </Suspense>
     </>
   );
 }
@@ -533,14 +539,14 @@ const PRODUCT_VARIANT_FRAGMENT = `#graphql
   }
 `;
 
-const PRODUCT_QUERY = `#graphql
-  query Product(
-    $country: CountryCode
-    $language: LanguageCode
-    $handle: String!
-    $selectedOptions: [SelectedOptionInput!]!
+const PRODUCT_QUERY_BY_ID = `#graphql
+query Product(
+  $id: ID!,
+  $country: CountryCode
+  $language: LanguageCode
+  $selectedOptions: [SelectedOptionInput!]!
   ) @inContext(country: $country, language: $language) {
-    product(handle: $handle) {
+    product(id: $id) {
       id
       title
       vendor
@@ -588,13 +594,86 @@ const PRODUCT_QUERY = `#graphql
   ${PRODUCT_VARIANT_FRAGMENT}
 `;
 
-const VARIANTS_QUERY = `#graphql
+// 备份信息
+// const PRODUCT_QUERY = `#graphql
+// query Product(
+//   $country: CountryCode
+//   $language: LanguageCode
+//   $handle: String!
+//   $selectedOptions: [SelectedOptionInput!]!
+//   ) @inContext(country: $country, language: $language) {
+//     product(handle: $handle) {
+//       id
+//       title
+//       vendor
+//       handle
+//       descriptionHtml
+//       description
+//       options {
+//         name
+//         values
+//       }
+//       selectedVariant: variantBySelectedOptions(selectedOptions: $selectedOptions) {
+//         ...ProductVariantFragment
+//       }
+//       media(first: 7) {
+//         nodes {
+//           ...Media
+//         }
+//       }
+//       variants(first: 1) {
+//         nodes {
+//           ...ProductVariantFragment
+//         }
+//       }
+//       seo {
+//         description
+//         title
+//       }
+//     }
+//     shop {
+//       name
+//       primaryDomain {
+//         url
+//       }
+//       shippingPolicy {
+//         body
+//         handle
+//       }
+//       refundPolicy {
+//         body
+//         handle
+//       }
+//     }
+//   }
+//   ${MEDIA_FRAGMENT}
+//   ${PRODUCT_VARIANT_FRAGMENT}
+// `;
+
+// const VARIANTS_QUERY = `#graphql
+//   query variants(
+//     $country: CountryCode
+//     $language: LanguageCode
+//     $handle: String!
+//   ) @inContext(country: $country, language: $language) {
+//     product(handle: $handle) {
+//       variants(first: 250) {
+//         nodes {
+//           ...ProductVariantFragment
+//         }
+//       }
+//     }
+//   }
+//   ${PRODUCT_VARIANT_FRAGMENT}
+// `;
+
+const VARIANTS_QUERY_BY_ID = `#graphql
   query variants(
     $country: CountryCode
     $language: LanguageCode
-    $handle: String!
+    $id: ID!
   ) @inContext(country: $country, language: $language) {
-    product(handle: $handle) {
+    product(id: $id) {
       variants(first: 250) {
         nodes {
           ...ProductVariantFragment

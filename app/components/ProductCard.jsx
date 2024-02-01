@@ -50,11 +50,13 @@ export function ProductCard({
     quantity: 1,
   };
 
+  const pidNum = product.id.split('Product/')[1]
+
   return (
     <div className="flex flex-col gap-2">
       <Link
         onClick={onClick}
-        to={`/products/${encodeURIComponent(product.handle)}`}
+        to={`/products/${pidNum}`}
         prefetch="intent"
       >
         <div className={clsx('grid gap-4', className)}>
