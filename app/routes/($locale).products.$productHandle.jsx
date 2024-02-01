@@ -1,16 +1,10 @@
 import {useRef, useEffect, Suspense} from 'react';
 import {Disclosure, Listbox} from '@headlessui/react';
-<<<<<<< HEAD
 import {json, defer} from '@shopify/remix-oxygen';
 import {useLoaderData, useActionData, Await, Form} from '@remix-run/react';
+import {Right} from '@icon-park/react';
 import {v4 as uuidv4} from 'uuid';
 import Cookies from 'js-cookie';
-
-=======
-import {defer, redirect} from '@shopify/remix-oxygen';
-import {useLoaderData, Await} from '@remix-run/react';
-import {Right} from '@icon-park/react'
->>>>>>> 4a622bd5c26cdba9a31fcec3d5183406d97328cf
 import {
   AnalyticsPageType,
   Money,
@@ -114,7 +108,6 @@ export async function loader({params, request, context}) {
  */
 export const action = async ({request, context}) => {
   const formData = await request.formData();
-<<<<<<< HEAD
   const variantGid = formData.get('variantGid');
   const discountCode = formData.get('discountCode');
 
@@ -139,20 +132,12 @@ export const action = async ({request, context}) => {
   }
 
   return null;
-=======
-  
->>>>>>> 4a622bd5c26cdba9a31fcec3d5183406d97328cf
 };
 
 export default function Product() {
   /** @type {LoaderReturnData} */
-<<<<<<< HEAD
   const {product, shop, variants} = useLoaderData();
   const {media, title, descriptionHtml} = product;
-=======
-  const {product, shop, recommended, variants} = useLoaderData();
-  const {media, title, vendor, descriptionHtml, selectedVariant} = product;
->>>>>>> 4a622bd5c26cdba9a31fcec3d5183406d97328cf
   const {shippingPolicy, refundPolicy} = shop;
   const actionData = useActionData();
 
@@ -182,7 +167,7 @@ export default function Product() {
     <>
       <Section className="px-0 md:px-8 lg:px-12">
         <div className="grid items-start md:gap-6 lg:gap-20 md:grid-cols-2 lg:grid-cols-3">
-          <div className='h-14'></div>
+          <div className="h-14"></div>
           <ProductGallery
             media={media.nodes}
             className="w-full lg:col-span-2"
@@ -191,49 +176,83 @@ export default function Product() {
             <section className="flex flex-col w-full max-w-xl py-0 md:mx-auto md:max-w-sm md:px-0">
               {/* 商品标题区域 */}
               <div className="grid gap-1 px-4 bg-white mb-2">
-                <div className='title-area pt-4 pb-4 '>
-                  <div className='current-price text-xl font-medium'>{(selectedVariant.price.currencyCode === 'USD' ? '$' : '') + selectedVariant.price.amount || ''}</div>
-                  <div className='original-price text-sm text-gray-400 line-through mb-1'>{(selectedVariant.compareAtPrice.currencyCode === 'USD' ? '$' : '') + selectedVariant.compareAtPrice.amount || ''}</div>
+                <div className="title-area pt-4 pb-4 ">
+                  <div className="current-price text-xl font-medium">
+                    {(selectedVariant.price.currencyCode === 'USD' ? '$' : '') +
+                      selectedVariant.price.amount || ''}
+                  </div>
+                  <div className="original-price text-sm text-gray-400 line-through mb-1">
+                    {(selectedVariant.compareAtPrice.currencyCode === 'USD'
+                      ? '$'
+                      : '') + selectedVariant.compareAtPrice.amount || ''}
+                  </div>
                   <h3 className="font-bold text-sm font-medium">{title}</h3>
                 </div>
               </div>
 
               {/* 商品选项区域 */}
-              <div className='product-options-box px-4 bg-white flex flex-row justify-between items-center h-12 mb-2'>
-                <div className='options-box-left text-base font-medium'>Select options</div>
-                <div className='options-box-right flex flex-row justify-between items-center'>
-                  <div className='opt-box-right-text text-base text-gray-400'>Select</div>
-                  <Right className='opt-box-right-icon' theme="outline" size="20" fill="#94a3b8"/>
+              <div className="product-options-box px-4 bg-white flex flex-row justify-between items-center h-12 mb-2">
+                <div className="options-box-left text-base font-medium">
+                  Select options
+                </div>
+                <div className="options-box-right flex flex-row justify-between items-center">
+                  <div className="opt-box-right-text text-base text-gray-400">
+                    Select
+                  </div>
+                  <Right
+                    className="opt-box-right-icon"
+                    theme="outline"
+                    size="20"
+                    fill="#94a3b8"
+                  />
                 </div>
               </div>
 
               {/* 邮费区域 */}
-              <div className='product-options-box px-4 bg-white flex flex-row justify-between items-center h-12 mb-2'>
-                <div className='options-box-left text-base font-medium'>Shipping</div>
-                <div className='options-box-right flex flex-row justify-between items-center'>
-                  <div className='opt-box-right-text text-base text-gray-400'>$5.55</div>
-                  <Right className='opt-box-right-icon' theme="outline" size="20" fill="#94a3b8"/>
+              <div className="product-options-box px-4 bg-white flex flex-row justify-between items-center h-12 mb-2">
+                <div className="options-box-left text-base font-medium">
+                  Shipping
+                </div>
+                <div className="options-box-right flex flex-row justify-between items-center">
+                  <div className="opt-box-right-text text-base text-gray-400">
+                    $5.55
+                  </div>
+                  <Right
+                    className="opt-box-right-icon"
+                    theme="outline"
+                    size="20"
+                    fill="#94a3b8"
+                  />
                 </div>
               </div>
 
               {/* 产品详情 */}
-              <div className='product-detail-box bg-white mb-2'>
-                <div className='product-options-box px-4 bg-white flex flex-row justify-between items-center h-12 mb-2'>
-                  <div className='options-box-left text-base font-medium'>Specifications</div>
-                  <div className='options-box-right flex flex-row justify-between items-center'>
-                      <Right className='opt-box-right-icon' theme="outline" size="20" fill="#94a3b8"/>
+              <div className="product-detail-box bg-white mb-2">
+                <div className="product-options-box px-4 bg-white flex flex-row justify-between items-center h-12 mb-2">
+                  <div className="options-box-left text-base font-medium">
+                    Specifications
+                  </div>
+                  <div className="options-box-right flex flex-row justify-between items-center">
+                    <Right
+                      className="opt-box-right-icon"
+                      theme="outline"
+                      size="20"
+                      fill="#94a3b8"
+                    />
                   </div>
                 </div>
-                <div className='divide-line bg-white px-4 mb-4'>
-                  <div className='h-px bg-gray-200'></div>
+                <div className="divide-line bg-white px-4 mb-4">
+                  <div className="h-px bg-gray-200"></div>
                 </div>
-                <div className='product-detail px-4 flex flex-row justify-between items-center mb-3'>
-                  <div className='product-detail-box-text flex text-sm text-gray-400 font-normal'>About this product</div>
+                <div className="product-detail px-4 flex flex-row justify-between items-center mb-3">
+                  <div className="product-detail-box-text flex text-sm text-gray-400 font-normal">
+                    About this product
+                  </div>
                 </div>
 
                 {/* 产品详情描述区域 */}
-                <div className='text-img-area px-4 py-4 text-xs '>
-                  <div dangerouslySetInnerHTML={{__html: descriptionHtml}}/>
+                <div className="text-img-area px-4 py-4 text-xs ">
+                  <div dangerouslySetInnerHTML={{__html: descriptionHtml}} />
                 </div>
               </div>
               {/* <Suspense fallback={<ProductForm variants={[]} />}>
