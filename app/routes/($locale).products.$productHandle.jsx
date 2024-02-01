@@ -137,7 +137,7 @@ export const action = async ({request, context}) => {
 export default function Product() {
   /** @type {LoaderReturnData} */
   const {product, shop, variants} = useLoaderData();
-  const {media, title, descriptionHtml} = product;
+  const {media, title, descriptionHtml, selectedVariant} = product;
   const {shippingPolicy, refundPolicy} = shop;
   const actionData = useActionData();
 
