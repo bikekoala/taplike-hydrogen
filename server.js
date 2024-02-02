@@ -89,10 +89,17 @@ export default {
       // 将 第三方 API 域名加入到 CSP
       let cspHeader = response.headers.get('Content-Security-Policy');
       if (cspHeader) {
-        cspHeader = cspHeader.replaceAll(
-          ' ws://127.0.0.1:*',
-          ' ws://127.0.0.1:* 10.20.1.10:* https://seller.taplike.com https://tiklike.taplike.com',
-        );
+        if (process.env.NODE_ENV === 'development') {
+          cspHeader = cspHeader.replaceAll(
+            ' ws://127.0.0.1:*',
+            ' ws://127.0.0.1:* 10.20.1.10:* https://seller.taplike.com',
+          );
+        } else {
+          cspHeader = cspHeader.replaceAll(
+            ' https://monorail-edge.shopifysvc.com',
+            ' https://monorail-edge.shopifysvc.com https://seller.taplike.com https://tiklike.taplike.com',
+          );
+        }
         response.headers.set('Content-Security-Policy', cspHeader);
       }
 
