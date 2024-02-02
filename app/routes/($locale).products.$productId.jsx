@@ -771,14 +771,11 @@ function sendPageEvent(
   data.checkoutId = checkoutId;
   data.discountCode = discountCode;
 
-  const api = 'https://seller.taplike.com/api/hydrogen/trackEvent';
+  const api = 'https://seller.taplike.com/api/common/hydrogen/trackEvent';
   //const api = 'http://10.20.1.10:30030/common/hydrogen/trackEvent';
   fetch(api, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Content-Security-Policy': "connect-src 'none';",
-    },
+    headers: {'Content-Type': 'application/json'},
     body: JSON.stringify(data),
   });
 }
