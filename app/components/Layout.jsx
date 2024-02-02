@@ -2,11 +2,19 @@ import {useParams, Form, Await} from '@remix-run/react';
 import {useWindowScroll} from 'react-use';
 import {Disclosure} from '@headlessui/react';
 import {Suspense, useEffect, useMemo, useState} from 'react';
-import { useLocation } from 'react-use';
+import {useLocation} from 'react-use';
 import {CartForm} from '@shopify/hydrogen';
-import {Back, Application, HeadsetOne} from '@icon-park/react'
-import {useSelector, useDispatch} from 'react-redux'
-import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure} from "@nextui-org/react";
+import {Back, Application, HeadsetOne} from '@icon-park/react';
+import {useSelector, useDispatch} from 'react-redux';
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  useDisclosure,
+} from '@nextui-org/react';
 import {
   Drawer,
   useDrawer,
@@ -24,7 +32,7 @@ import {
   Cart,
   CartLoading,
   Link,
-  DiscountModal
+  DiscountModal,
 } from '~/components';
 import {useIsHomePath} from '~/lib/utils';
 import {useIsHydrated} from '~/hooks/useIsHydrated';
@@ -37,69 +45,76 @@ import {useRootLoaderData} from '~/root';
 export function Layout({children, layout}) {
   const {headerMenu, footerMenu} = layout || {};
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
-  const isHome = useIsHomePath()
-  const [discountModalIndex, setDiscountModalIndex] = useState(0)
-  const { pathname } = useLocation()
-  const reduxData = useSelector(state => state.clickNum)
-  const dispatch = useDispatch()
+  const isHome = useIsHomePath();
+  const [discountModalIndex, setDiscountModalIndex] = useState(0);
+  const {pathname} = useLocation();
+  const reduxData = useSelector((state) => state.clickNum);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    setDiscountModalIndex(0)
-  },[pathname])
+    setDiscountModalIndex(0);
+  }, [pathname]);
 
   const onDiscountModalChange = () => {
-    onOpenChange()
-    setDiscountModalIndex(e => e + 1)
-  }
+    onOpenChange();
+    setDiscountModalIndex((e) => e + 1);
+  };
 
   const onClickMobileBuyBtn = (index) => {
-    let discountCode = ''
-    if (index === undefined) { // 没有折扣码
-      discountCode = ''
-    } else if (index === 0) { // 第一个弹窗5%的折扣
-      discountCode = 'hydrongen-5'
-    } else if (index === 1) { // 第二个弹窗15%的折扣
-      discountCode = 'hydrongen-15'
-    } else { // 第三个弹窗30%的折扣
-      discountCode = 'hydrongen-20'
+    let discountCode = '';
+    if (index === undefined) {
+      // 没有折扣码
+      discountCode = '';
+    } else if (index === 0) {
+      // 第一个弹窗5%的折扣
+      discountCode = 'ABC5';
+    } else if (index === 1) {
+      // 第二个弹窗15%的折扣
+      discountCode = 'DD15';
+    } else {
+      // 第三个弹窗20%的折扣
+      discountCode = 'TT20';
     }
 
-    dispatch({type:'CLICK_BUY_BTN', discountCode})
-  }
+    dispatch({type: 'CLICK_BUY_BTN', discountCode});
+  };
 
   return (
     <>
       <div className="flex flex-col h-screen">
-      {/* <div className="flex flex-col min-h-screen"> */}
+        {/* <div className="flex flex-col min-h-screen"> */}
         <div className="">
           <a href="#mainContent" className="sr-only">
             Skip to content
           </a>
         </div>
         {headerMenu && layout?.shop.name && (
-          <Header title={layout.shop.name} menu={headerMenu} onOpen={onOpen}/>
+          <Header title={layout.shop.name} menu={headerMenu} onOpen={onOpen} />
         )}
         <main role="main" id="mainContent" className="flex-grow">
           {children}
         </main>
-        {isHome == false && (<MobileFooter clickBuyBtn={onClickMobileBuyBtn}/>)}
+        {isHome == false && <MobileFooter clickBuyBtn={onClickMobileBuyBtn} />}
       </div>
       {/* {footerMenu && <Footer menu={footerMenu} />} */}
 
       {/* 弹窗遮罩 */}
       <Modal
-      // isOpen={true}
-      size='xs'
-      isOpen={isOpen}
-      isDismissable={false}
-      onOpenChange={onDiscountModalChange}
-      placement={'center'}
-      backdrop={'opaque'}
+        // isOpen={true}
+        size="xs"
+        isOpen={isOpen}
+        isDismissable={false}
+        onOpenChange={onDiscountModalChange}
+        placement={'center'}
+        backdrop={'opaque'}
       >
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1"></ModalHeader>
           <ModalBody>
-            <DiscountModal index={discountModalIndex} onClickBuyBtn={onClickMobileBuyBtn}></DiscountModal>
+            <DiscountModal
+              index={discountModalIndex}
+              onClickBuyBtn={onClickMobileBuyBtn}
+            ></DiscountModal>
           </ModalBody>
         </ModalContent>
       </Modal>
@@ -233,16 +248,15 @@ function MenuMobileNav({menu, onClose}) {
  */
 function MobileHeader({title, isHome, openCart, openMenu, onOpen}) {
   // useHeaderStyleFix(containerStyle, setContainerStyle, isHome);
-  
+
   const params = useParams();
 
   const clickBackBtn = (e) => {
-    e.stopPropagation()
-    onOpen()
-  }
+    e.stopPropagation();
+    onOpen();
+  };
 
   return (
-
     <header
       role="banner"
       className={`${
@@ -252,8 +266,6 @@ function MobileHeader({title, isHome, openCart, openMenu, onOpen}) {
       } flex items-center h-14 fixed lg:hidden backdrop-blur-lg z-40 top-0 justify-between w-full leading-none gap-4 px-4 md:px-8`}
       // } flex lg:hidden items-center h-14 sticky backdrop-blur-lg z-40 top-0 justify-between w-full leading-none gap-4 px-4 md:px-8`}
     >
-
-
       {/* <div className="flex items-center justify-start w-full gap-4">
         <button
           onClick={openMenu}
@@ -290,16 +302,19 @@ function MobileHeader({title, isHome, openCart, openMenu, onOpen}) {
         className="flex items-center self-stretch leading-[3rem] md:leading-[4rem] justify-center flex-grow h-full"
         to="/"
       > */}
-        <Heading
-          className="font-bold text-center leading-none"
-          as={isHome ? 'h1' : 'h2'}
+      <Heading
+        className="font-bold text-center leading-none"
+        as={isHome ? 'h1' : 'h2'}
+      >
+        <div
+          className="flex flex-row justify-center items-center"
+          onClick={(e) => clickBackBtn(e)}
         >
-          <div className='flex flex-row justify-center items-center' onClick={(e) => clickBackBtn(e)}>
-            <Back theme="outline" size="24" fill="#ffffff" className='mr-1'/>
-            <span>BACK</span>
-          </div>
-          {/* {title} */}
-        </Heading>
+          <Back theme="outline" size="24" fill="#ffffff" className="mr-1" />
+          <span>BACK</span>
+        </div>
+        {/* {title} */}
+      </Heading>
       {/* </Link> */}
 
       <div className="flex items-center justify-end w-full gap-4">
@@ -311,28 +326,36 @@ function MobileHeader({title, isHome, openCart, openMenu, onOpen}) {
 }
 
 /**
- * 
+ *
  */
 function MobileFooter({clickBuyBtn}) {
   const clickBtn = (e) => {
-    clickBuyBtn()
-  }
+    clickBuyBtn();
+  };
   return (
-    <div className='fixed inset-x-0 bottom-0 bg-white flex flex-col justify-center items-center text-xl font-bold'>
-      <div className='divide-line w-screen h-px bg-gray-200'>
-        <div className='h-px bg-gray-200'></div>
+    <div className="fixed inset-x-0 bottom-0 bg-white flex flex-col justify-center items-center text-xl font-bold">
+      <div className="divide-line w-screen h-px bg-gray-200">
+        <div className="h-px bg-gray-200"></div>
       </div>
-      <div className='flex flex-row w-full px-4 justify-between items-center h-16'>
-        <div className='mobile-footer-left-box flex flex-row justify-center items-center mr-5'>
-          <Application theme="outline" size="20" fill="#4a4a4a" className='mr-3'/>
-          <HeadsetOne theme="outline" size="20" fill="#4a4a4a"/>
+      <div className="flex flex-row w-full px-4 justify-between items-center h-16">
+        <div className="mobile-footer-left-box flex flex-row justify-center items-center mr-5">
+          <Application
+            theme="outline"
+            size="20"
+            fill="#4a4a4a"
+            className="mr-3"
+          />
+          <HeadsetOne theme="outline" size="20" fill="#4a4a4a" />
         </div>
-        <div onClick={clickBtn} className='mobile-footer-right-box flex justify-center items-center flex-1 h-11 bg-rose-500 rounded-sm text-white text-base'>
+        <div
+          onClick={clickBtn}
+          className="mobile-footer-right-box flex justify-center items-center flex-1 h-11 bg-rose-500 rounded-sm text-white text-base"
+        >
           Buy now
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 /**
