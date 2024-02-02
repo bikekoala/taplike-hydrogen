@@ -3,6 +3,7 @@ import {Disclosure, Listbox} from '@headlessui/react';
 import {json, defer} from '@shopify/remix-oxygen';
 import {useLoaderData, useActionData, Await, Form} from '@remix-run/react';
 import {Right} from '@icon-park/react';
+import {useSelector, useDispatch} from 'react-redux'
 import {v4 as uuidv4} from 'uuid';
 import Cookies from 'js-cookie';
 import {
@@ -37,19 +38,30 @@ export const headers = routeHeaders;
  * @param {LoaderFunctionArgs}
  */
 export async function loader({params, request, context}) {
-  const {productHandle} = params;
-  invariant(productHandle, 'Missing productHandle param, check route filename');
+  const {productId} = params;
+  const completedPid = `gid://shopify/Product/${productId}`
+  invariant(productId, 'Missing productId param, check route filename');
 
-  const selectedOptions = getSelectedProductOptions(request);
-
-  const {shop, product} = await context.storefront.query(PRODUCT_QUERY, {
+  const variants = await context.storefront.query(VARIANTS_QUERY_BY_ID, {
     variables: {
-      handle: productHandle,
-      selectedOptions,
+      id: completedPid,
       country: context.storefront.i18n.country,
       language: context.storefront.i18n.language,
     },
   });
+
+  const selectedOptions = variants.product.variants.nodes[0].selectedOptions;
+
+  const {shop, product} = await context.storefront.query(PRODUCT_QUERY_BY_ID, {
+    variables: {
+      id: completedPid,
+      country: context.storefront.i18n.country,
+      language: context.storefront.i18n.language,
+      selectedOptions,
+    },
+  });
+
+
 
   if (!product?.id) {
     throw new Response('product', {status: 404});
@@ -60,18 +72,14 @@ export async function loader({params, request, context}) {
   // into it's own separate query that is deferred. So there's a brief moment
   // where variant options might show as available when they're not, but after
   // this deferred query resolves, the UI will update.
-  const variants = context.storefront.query(VARIANTS_QUERY, {
-    variables: {
-      handle: productHandle,
-      country: context.storefront.i18n.country,
-      language: context.storefront.i18n.language,
-    },
-  });
+
+  // const recommended = getRecommendedProducts(context.storefront, product.id);
 
   // TODO: firstVariant is never used because we will always have a selectedVariant due to redirect
   // Investigate if we can avoid the redirect for product pages with no search params for first variant
   const firstVariant = product.variants.nodes[0];
-  const selectedVariant = product.selectedVariant ?? firstVariant;
+  const selectedVariant = firstVariant;
+  // const selectedVariant = product.selectedVariant ?? firstVariant;
 
   const productAnalytics = {
     productGid: product.id,
@@ -192,7 +200,7 @@ export default function Product() {
               </div>
 
               {/* 商品选项区域 */}
-              <div className="product-options-box px-4 bg-white flex flex-row justify-between items-center h-12 mb-2">
+              {/* <div className="product-options-box px-4 bg-white flex flex-row justify-between items-center h-12 mb-2">
                 <div className="options-box-left text-base font-medium">
                   Select options
                 </div>
@@ -207,10 +215,10 @@ export default function Product() {
                     fill="#94a3b8"
                   />
                 </div>
-              </div>
+              </div> */}
 
               {/* 邮费区域 */}
-              <div className="product-options-box px-4 bg-white flex flex-row justify-between items-center h-12 mb-2">
+              {/* <div className="product-options-box px-4 bg-white flex flex-row justify-between items-center h-12 mb-2">
                 <div className="options-box-left text-base font-medium">
                   Shipping
                 </div>
@@ -225,7 +233,7 @@ export default function Product() {
                     fill="#94a3b8"
                   />
                 </div>
-              </div>
+              </div> */}
 
               {/* 产品详情 */}
               <div className="product-detail-box bg-white mb-2">
@@ -252,22 +260,22 @@ export default function Product() {
                 </div>
 
                 {/* 产品详情描述区域 */}
-                <div className="text-img-area px-4 py-4 text-xs ">
+                <div className="text-img-area px-4 py-4 text-sm ">
                   <div dangerouslySetInnerHTML={{__html: descriptionHtml}} />
                 </div>
               </div>
-              {/* <Suspense fallback={<ProductForm variants={[]} />}>
+              <Suspense fallback={<ProductForm variants={[]} />}>
                 <Await
                   errorElement="There was a problem loading related products"
                   resolve={variants}
                 >
                   {(resp) => (
-                    <ProductForm
+                    <ProductForm 
                       variants={resp.product?.variants.nodes || []}
                     />
                   )}
                 </Await>
-              </Suspense> */}
+              </Suspense>
               {/* <div className="h-[1px] bg-primary/10 w-full"></div> */}
               {/* <div
                 className="prose dark:prose-invert -mt-6 text-sm"
@@ -307,6 +315,15 @@ export function ProductForm({variants}) {
   const {shop, product, analytics, storeDomain} = useLoaderData();
 
   const closeRef = useRef(null);
+  const formBtnRef = useRef(null)
+
+  const storeClickNum = useSelector(state => state.clickNum)
+  const discountCode = useSelector(state => state.couponCode)
+  useEffect(() => {
+    if (storeClickNum != 0) {
+      formBtnRef.current.click()
+    }
+  }, [storeClickNum])
 
   /**
    * Likewise, we're defaulting to the first variant for purposes
@@ -328,7 +345,7 @@ export function ProductForm({variants}) {
   };
 
   return (
-    <div className="grid gap-10">
+    <div className="hidden grid gap-10">
       <div className="grid gap-4">
         <VariantSelector
           handle={product.handle}
@@ -487,17 +504,15 @@ export function ProductForm({variants}) {
                   name="variantGid"
                   value={selectedVariant?.id}
                 />
-                <button className="bg-primary text-contrast rounded py-2 px-4 focus:shadow-outline block w-full font-bold">
+                <input
+                  type="hidden"
+                  name="discountCode"
+                  value={discountCode}
+                />
+                <button ref={formBtnRef} className="bg-primary text-contrast rounded py-2 px-4 focus:shadow-outline block w-full font-bold">
                   Checkout
                 </button>
               </Form>
-            )}
-            {!isOutOfStock && (
-              <ShopPayButton
-                width="100%"
-                variantIds={[selectedVariant?.id]}
-                storeDomain={storeDomain}
-              />
             )}
           </div>
         )}
@@ -590,14 +605,14 @@ const PRODUCT_VARIANT_FRAGMENT = `#graphql
   }
 `;
 
-const PRODUCT_QUERY = `#graphql
-  query Product(
-    $country: CountryCode
-    $language: LanguageCode
-    $handle: String!
-    $selectedOptions: [SelectedOptionInput!]!
+const PRODUCT_QUERY_BY_ID = `#graphql
+query Product(
+  $id: ID!,
+  $country: CountryCode
+  $language: LanguageCode
+  $selectedOptions: [SelectedOptionInput!]!
   ) @inContext(country: $country, language: $language) {
-    product(handle: $handle) {
+    product(id: $id) {
       id
       title
       vendor
@@ -646,13 +661,13 @@ const PRODUCT_QUERY = `#graphql
   ${PRODUCT_VARIANT_FRAGMENT}
 `;
 
-const VARIANTS_QUERY = `#graphql
+const VARIANTS_QUERY_BY_ID = `#graphql
   query variants(
     $country: CountryCode
     $language: LanguageCode
-    $handle: String!
+    $id: ID!
   ) @inContext(country: $country, language: $language) {
-    product(handle: $handle) {
+    product(id: $id) {
       variants(first: 250) {
         nodes {
           ...ProductVariantFragment
