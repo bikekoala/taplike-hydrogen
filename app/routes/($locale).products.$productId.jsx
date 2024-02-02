@@ -279,7 +279,7 @@ export default function Product() {
                 className="prose dark:prose-invert -mt-6 text-sm"
                 dangerouslySetInnerHTML={{__html: descriptionHtml}}
               /> */}
-              <div className="grid gap-4 py-4">
+              {/* <div className="grid gap-4 py-4">
                 {shippingPolicy?.body && (
                   <ProductDetail
                     title="Shipping"
@@ -294,7 +294,7 @@ export default function Product() {
                     learnMore={`/policies/${refundPolicy.handle}`}
                   />
                 )}
-              </div>
+              </div> */}
             </section>
           </div>
         </div>
