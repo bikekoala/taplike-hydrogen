@@ -57,16 +57,14 @@ export function Layout({children, layout}) {
     if (index === undefined) { // 没有折扣码
       discountCode = ''
     } else if (index === 0) { // 第一个弹窗5%的折扣
-      discountCode = '555'
+      discountCode = 'hydrongen-5'
     } else if (index === 1) { // 第二个弹窗15%的折扣
-      discountCode = '15'
+      discountCode = 'hydrongen-15'
     } else { // 第三个弹窗30%的折扣
-      discountCode = '300'
+      discountCode = 'hydrongen-20'
     }
-    // console.log('退弹的下标index-------', index)
-    // console.log('redux里面的clickNum数据-------', reduxData)
+
     dispatch({type:'CLICK_BUY_BTN', discountCode})
-    // console.log('redux修改后的clickNum数据-------', reduxData)
   }
 
   return (

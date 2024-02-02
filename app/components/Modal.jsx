@@ -78,7 +78,7 @@ export function DiscountModal({index, onClickBuyBtn}) {
         <div className='w-full h-12 text-3xl font-bold flex justify-center items-center'>
           New collection
         </div>
-        <div className='text-5xl font-bold mb-4 w-full flex items-center justify-center'>30% OFF</div>
+        <div className='text-5xl font-bold mb-4 w-full flex items-center justify-center'>20% OFF</div>
         <div className='text-base font-medium w-full flex items-center justify-center'>Get a discount on all</div>
         <div className='text-base font-medium mb-4 w-full flex items-center justify-center'>items in your next order</div>
         <div onClick={clickBuyBtn} className='text-2xl font-medium mb-4 w-full flex justify-center items-center h-10 rounded bg-rose-600 text-white'>BUY NOW</div>
