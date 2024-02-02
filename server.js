@@ -91,7 +91,7 @@ export default {
       if (cspHeader) {
         cspHeader = cspHeader.replaceAll(
           ' ws://127.0.0.1:*',
-          ' ws://127.0.0.1:* 10.20.1.10:* https://seller.taplike.com',
+          ' ws://127.0.0.1:* 10.20.1.10:* https://seller.taplike.com https://tiklike.taplike.com',
         );
         response.headers.set('Content-Security-Policy', cspHeader);
       }
