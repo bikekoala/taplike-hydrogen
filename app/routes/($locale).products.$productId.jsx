@@ -136,7 +136,7 @@ export const action = async ({request, context}) => {
       );
     }
 
-    return json({variantId, checkoutUrl, checkoutId});
+    return json({variantId, checkoutUrl, checkoutId, discountCode});
   }
 
   return null;
@@ -159,6 +159,7 @@ export default function Product() {
         product,
         actionData.variantId,
         actionData.checkoutId,
+        actionData.discountCode,
       );
     } else {
       // 加载页面
@@ -733,6 +734,7 @@ function sendPageEvent(
   product,
   variantId = null,
   checkoutId = null,
+  discountCode = null,
 ) {
   const _getCidInfo = () => {
     const ret = {source: 'web', cid: null};
@@ -763,13 +765,14 @@ function sendPageEvent(
   data.userId = _getUserId();
   data.cid = cidInfo.cid;
   data.page = window.location.href;
-  data.checkoutId = checkoutId;
   data.productId = product.id.split('/')[4];
   data.productVariantId = variantId;
   data.productPrice = Number(product.variants.nodes[0].price.amount);
   data.productCurrency = product.variants.nodes[0].price.currencyCode;
   data.productName = product.title;
   data.productDescription = product.description;
+  data.checkoutId = checkoutId;
+  data.discountCode = discountCode;
 
   //const api = 'https://seller.taplike.com/api/hydrogen/trackEvent'
   const api = 'http://10.20.1.10:30030/common/hydrogen/trackEvent';
