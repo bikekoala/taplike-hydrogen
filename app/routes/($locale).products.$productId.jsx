@@ -3,7 +3,7 @@ import {Disclosure, Listbox} from '@headlessui/react';
 import {json, defer} from '@shopify/remix-oxygen';
 import {useLoaderData, useActionData, Await, Form} from '@remix-run/react';
 import {Right} from '@icon-park/react';
-import {useSelector, useDispatch} from 'react-redux'
+import {useSelector, useDispatch} from 'react-redux';
 import {v4 as uuidv4} from 'uuid';
 import Cookies from 'js-cookie';
 import {
@@ -39,7 +39,7 @@ export const headers = routeHeaders;
  */
 export async function loader({params, request, context}) {
   const {productId} = params;
-  const completedPid = `gid://shopify/Product/${productId}`
+  const completedPid = `gid://shopify/Product/${productId}`;
   invariant(productId, 'Missing productId param, check route filename');
 
   const variants = await context.storefront.query(VARIANTS_QUERY_BY_ID, {
@@ -60,8 +60,6 @@ export async function loader({params, request, context}) {
       selectedOptions,
     },
   });
-
-
 
   if (!product?.id) {
     throw new Response('product', {status: 404});
@@ -270,7 +268,7 @@ export default function Product() {
                   resolve={variants}
                 >
                   {(resp) => (
-                    <ProductForm 
+                    <ProductForm
                       variants={resp.product?.variants.nodes || []}
                     />
                   )}
@@ -315,15 +313,15 @@ export function ProductForm({variants}) {
   const {shop, product, analytics, storeDomain} = useLoaderData();
 
   const closeRef = useRef(null);
-  const formBtnRef = useRef(null)
+  const formBtnRef = useRef(null);
 
-  const storeClickNum = useSelector(state => state.clickNum)
-  const discountCode = useSelector(state => state.couponCode)
+  const storeClickNum = useSelector((state) => state.clickNum);
+  const discountCode = useSelector((state) => state.couponCode);
   useEffect(() => {
     if (storeClickNum != 0) {
-      formBtnRef.current.click()
+      formBtnRef.current.click();
     }
-  }, [storeClickNum])
+  }, [storeClickNum]);
 
   /**
    * Likewise, we're defaulting to the first variant for purposes
@@ -504,12 +502,11 @@ export function ProductForm({variants}) {
                   name="variantGid"
                   value={selectedVariant?.id}
                 />
-                <input
-                  type="hidden"
-                  name="discountCode"
-                  value={discountCode}
-                />
-                <button ref={formBtnRef} className="bg-primary text-contrast rounded py-2 px-4 focus:shadow-outline block w-full font-bold">
+                <input type="hidden" name="discountCode" value={discountCode} />
+                <button
+                  ref={formBtnRef}
+                  className="bg-primary text-contrast rounded py-2 px-4 focus:shadow-outline block w-full font-bold"
+                >
                   Checkout
                 </button>
               </Form>
@@ -774,8 +771,8 @@ function sendPageEvent(
   data.checkoutId = checkoutId;
   data.discountCode = discountCode;
 
-  //const api = 'https://seller.taplike.com/api/hydrogen/trackEvent'
-  const api = 'http://10.20.1.10:30030/common/hydrogen/trackEvent';
+  const api = 'https://seller.taplike.com/api/hydrogen/trackEvent';
+  //const api = 'http://10.20.1.10:30030/common/hydrogen/trackEvent';
   fetch(api, {
     method: 'POST',
     headers: {
