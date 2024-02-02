@@ -5,6 +5,7 @@ import {Suspense, useEffect, useMemo, useState} from 'react';
 import { useLocation } from 'react-use';
 import {CartForm} from '@shopify/hydrogen';
 import {Back, Application, HeadsetOne} from '@icon-park/react'
+import {useSelector, useDispatch} from 'react-redux'
 import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure} from "@nextui-org/react";
 import {
   Drawer,
@@ -39,6 +40,8 @@ export function Layout({children, layout}) {
   const isHome = useIsHomePath()
   const [discountModalIndex, setDiscountModalIndex] = useState(0)
   const { pathname } = useLocation()
+  const reduxData = useSelector(state => state.clickNum)
+  const dispatch = useDispatch()
 
   useEffect(() => {
     setDiscountModalIndex(0)
@@ -47,6 +50,23 @@ export function Layout({children, layout}) {
   const onDiscountModalChange = () => {
     onOpenChange()
     setDiscountModalIndex(e => e + 1)
+  }
+
+  const onClickMobileBuyBtn = (index) => {
+    let discountCode = ''
+    if (index === undefined) { // 没有折扣码
+      discountCode = ''
+    } else if (index === 0) { // 第一个弹窗5%的折扣
+      discountCode = '555'
+    } else if (index === 1) { // 第二个弹窗15%的折扣
+      discountCode = '15'
+    } else { // 第三个弹窗30%的折扣
+      discountCode = '300'
+    }
+    // console.log('退弹的下标index-------', index)
+    // console.log('redux里面的clickNum数据-------', reduxData)
+    dispatch({type:'CLICK_BUY_BTN', discountCode})
+    // console.log('redux修改后的clickNum数据-------', reduxData)
   }
 
   return (
@@ -64,7 +84,7 @@ export function Layout({children, layout}) {
         <main role="main" id="mainContent" className="flex-grow">
           {children}
         </main>
-        {isHome == false && (<MobileFooter/>)}
+        {isHome == false && (<MobileFooter clickBuyBtn={onClickMobileBuyBtn}/>)}
       </div>
       {/* {footerMenu && <Footer menu={footerMenu} />} */}
 
@@ -81,7 +101,7 @@ export function Layout({children, layout}) {
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1"></ModalHeader>
           <ModalBody>
-            <DiscountModal index={discountModalIndex}></DiscountModal>
+            <DiscountModal index={discountModalIndex} onClickBuyBtn={onClickMobileBuyBtn}></DiscountModal>
           </ModalBody>
         </ModalContent>
       </Modal>
@@ -295,7 +315,10 @@ function MobileHeader({title, isHome, openCart, openMenu, onOpen}) {
 /**
  * 
  */
-function MobileFooter() {
+function MobileFooter({clickBuyBtn}) {
+  const clickBtn = (e) => {
+    clickBuyBtn()
+  }
   return (
     <div className='fixed inset-x-0 bottom-0 bg-white flex flex-col justify-center items-center text-xl font-bold'>
       <div className='divide-line w-screen h-px bg-gray-200'>
@@ -306,7 +329,7 @@ function MobileFooter() {
           <Application theme="outline" size="20" fill="#4a4a4a" className='mr-3'/>
           <HeadsetOne theme="outline" size="20" fill="#4a4a4a"/>
         </div>
-        <div className='mobile-footer-right-box flex justify-center items-center flex-1 h-11 bg-rose-500 rounded-sm text-white text-base'>
+        <div onClick={clickBtn} className='mobile-footer-right-box flex justify-center items-center flex-1 h-11 bg-rose-500 rounded-sm text-white text-base'>
           Buy now
         </div>
       </div>

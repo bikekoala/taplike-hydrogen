@@ -25,6 +25,8 @@ import {NotFound} from './components/NotFound';
 import styles from './styles/app.css';
 import {DEFAULT_LOCALE, parseMenu} from './lib/utils';
 import {useAnalytics} from './hooks/useAnalytics';
+import { legacy_createStore as createStore } from 'redux'
+import { Provider } from 'react-redux'
 import '@icon-park/react/styles/index.css'
 
 // This is important to avoid re-fetching root queries on sub-navigations
@@ -105,6 +107,24 @@ export default function App() {
 
   useAnalytics(hasUserConsent);
 
+  const storeReducer = (state, action) => {
+    if (!state) return {
+      themeColor: 'red',
+      clickNum: 0,
+      couponCode: ''
+    }
+    switch (action.type) {
+      case 'CHANGE_COLOR':
+        return { ...state, themeColor: action.themeColor }
+      case 'CLICK_BUY_BTN':
+        return { ...state, clickNum: state.clickNum + 1, couponCode: action.discountCode}
+      default:
+        return state
+    }
+  }
+  
+  const store = createStore(storeReducer)
+
   return (
     <html lang={locale.language}>
         <head>
@@ -116,14 +136,16 @@ export default function App() {
           <Links />
         </head>
         <body>
-        <NextUIProvider>
-          <Layout
-            key={`${locale.language}-${locale.country}`}
-            layout={data.layout}
-          >
-            <Outlet />
-          </Layout>
-        </NextUIProvider>
+        <Provider store={store}>
+          <NextUIProvider>
+            <Layout
+              key={`${locale.language}-${locale.country}`}
+              layout={data.layout}
+            >
+              <Outlet />
+            </Layout>
+          </NextUIProvider>
+        </Provider>
           <ScrollRestoration nonce={nonce} />
           <Scripts nonce={nonce} />
           <LiveReload nonce={nonce} />

@@ -47,7 +47,10 @@ export function Modal({children, cancelLink}) {
   );
 }
 
-export function DiscountModal({index, clickMethod}) {
+export function DiscountModal({index, onClickBuyBtn}) {
+  const clickBuyBtn = (e) => {
+    onClickBuyBtn(index)
+  }
   if (index == 0) {
     return (
       <div className='discount-box flex flex-col justify-center items-center'>
@@ -55,8 +58,8 @@ export function DiscountModal({index, clickMethod}) {
           <img src={giftImg1} alt="" className='w-16'/>
         </div>
         <div className='text-2xl font-medium mb-2'>Sale!</div>
-        <div className='text-3xl font-bold mb-4'>10% DISCOUNT</div>
-        <div className='text-2xl font-medium mb-4 w-full flex justify-center items-center h-10 rounded bg-red-500 text-white'>BUY NOW</div>
+        <div className='text-3xl font-bold mb-4'>5% DISCOUNT</div>
+        <div onClick={clickBuyBtn} className='text-2xl font-medium mb-4 w-full flex justify-center items-center h-10 rounded bg-red-500 text-white'>BUY NOW</div>
       </div>
     )
   } else if (index == 1) {
@@ -65,8 +68,8 @@ export function DiscountModal({index, clickMethod}) {
         <div className='mb-2 w-16 h-16'>
           <img src={giftImg2} alt="" className='w-16'/>
         </div>
-        <div className='text-3xl font-bold mb-4 text-rose-700'>-20% FOR ALL</div>
-        <div className='text-2xl font-medium mb-4 w-full flex justify-center items-center h-10 rounded bg-rose-600 text-white'>BUY NOW</div>
+        <div className='text-3xl font-bold mb-4 text-rose-700'>-15% FOR ALL</div>
+        <div onClick={clickBuyBtn} className='text-2xl font-medium mb-4 w-full flex justify-center items-center h-10 rounded bg-rose-600 text-white'>BUY NOW</div>
       </div>
     )
   } else {
@@ -78,7 +81,7 @@ export function DiscountModal({index, clickMethod}) {
         <div className='text-5xl font-bold mb-4 w-full flex items-center justify-center'>30% OFF</div>
         <div className='text-base font-medium w-full flex items-center justify-center'>Get a discount on all</div>
         <div className='text-base font-medium mb-4 w-full flex items-center justify-center'>items in your next order</div>
-        <div className='text-2xl font-medium mb-4 w-full flex justify-center items-center h-10 rounded bg-rose-600 text-white'>BUY NOW</div>
+        <div onClick={clickBuyBtn} className='text-2xl font-medium mb-4 w-full flex justify-center items-center h-10 rounded bg-rose-600 text-white'>BUY NOW</div>
       </div>
     )
   }
