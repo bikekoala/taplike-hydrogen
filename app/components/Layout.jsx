@@ -338,7 +338,7 @@ function MobileFooter({clickBuyBtn}) {
         <div className="h-px bg-gray-200"></div>
       </div>
       <div className="flex flex-row w-full px-4 justify-between items-center h-16">
-        <div className="mobile-footer-left-box flex flex-row justify-center items-center mr-5">
+        {/* <div className="mobile-footer-left-box flex flex-row justify-center items-center mr-5">
           <Application
             theme="outline"
             size="20"
@@ -346,7 +346,7 @@ function MobileFooter({clickBuyBtn}) {
             className="mr-3"
           />
           <HeadsetOne theme="outline" size="20" fill="#4a4a4a" />
-        </div>
+        </div> */}
         <div
           onClick={clickBtn}
           className="mobile-footer-right-box flex justify-center items-center flex-1 h-11 bg-rose-500 rounded-sm text-white text-base"
