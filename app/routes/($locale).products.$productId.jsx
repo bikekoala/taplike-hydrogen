@@ -6,6 +6,9 @@ import {Right} from '@icon-park/react';
 import {useSelector, useDispatch} from 'react-redux';
 import {v4 as uuidv4} from 'uuid';
 import Cookies from 'js-cookie';
+import {Accordion, AccordionItem} from "@nextui-org/react";
+import {Down, Up, Commodity} from '@icon-park/react';
+
 import {
   AnalyticsPageType,
   Money,
@@ -238,37 +241,36 @@ export default function Product() {
               </div> */}
 
               {/* 产品详情 */}
-              <div className="product-detail-box bg-white mb-2">
-                <div className="product-options-box px-4 bg-white flex flex-row justify-between items-center h-12 mb-2">
-                  <div className="options-box-left text-base font-medium">
-                    Specifications
-                  </div>
-                  <div className="options-box-right flex flex-row justify-between items-center">
-                    {/* <Right
-                      className="opt-box-right-icon"
-                      theme="outline"
-                      size="20"
-                      fill="#94a3b8"
-                    /> */}
-                  </div>
-                </div>
-                <div className="divide-line bg-white px-4 mb-4">
-                  <div className="h-px bg-gray-200"></div>
-                </div>
-                <div className="product-detail px-4 flex flex-row justify-between items-center mb-3">
-                  <div className="product-detail-box-text flex text-sm text-gray-400 font-normal">
-                    About this product
-                  </div>
-                </div>
-
-                {/* 产品详情描述区域 */}
-                <div className="text-img-area px-4 py-4 text-base">
-                  <div dangerouslySetInnerHTML={{__html: descriptionHtml}} />
-                </div>
+              <div className="product-detail-box bg-white mb-2 px-4">
+                <Accordion selectionMode="multiple" defaultExpandedKeys={["1"]}>
+                  <AccordionItem
+                    key="1" 
+                    aria-label="Accordion 1" 
+                    title="Specifications"
+                    className="text-base"
+                    disableIndicatorAnimation="true"
+                    startContent={
+                      <Commodity theme="outline" size="20" fill="#4a4a4a"/>
+                    }
+                    indicator={({ isOpen }) => (isOpen ? <Up theme="outline" size="20" fill="#4a4a4a"/> : <Down theme="outline" size="20" fill="#4a4a4a"/>)}
+                  >
+                    <div className="product-detail flex flex-row justify-between items-center mb-3">
+                      <div className="product-detail-box-text flex text-sm text-gray-400 font-normal">
+                        About this product
+                      </div>
+                    </div>
+                    <div className="divide-line bg-white mb-4">
+                      <div className="h-px bg-gray-200"></div>
+                    </div>
+                    <div className="text-img-area py-4 text-base">
+                      <div dangerouslySetInnerHTML={{__html: descriptionHtml}} />
+                    </div>
+                  </AccordionItem>
+                </Accordion>
               </div>
 
               {/* 产品政策 */}
-              <div className='policy-box mb-2 px-4'>
+              <div className='policy-box mb-2 px-4 bg-white'>
                 <ProductPolicy></ProductPolicy>
               </div>
 

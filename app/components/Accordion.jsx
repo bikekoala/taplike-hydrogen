@@ -1,5 +1,5 @@
 import {Accordion, AccordionItem} from "@nextui-org/react";
-import {Airplane, PersonalPrivacy, Return, Info, Left, Up} from '@icon-park/react';
+import {Airplane, PersonalPrivacy, Return, Info, Down, Up} from '@icon-park/react';
 
 
 // 产品落地页底部政策相关内容
@@ -17,7 +17,8 @@ export function ProductPolicy() {
           aria-label="Accordion 1" 
           title="Shipping Policy"
           className="text-base"
-          indicator={({ isOpen }) => (isOpen ? <Left theme="outline" size="20" fill="#4a4a4a"/> : <Up theme="outline" size="20" fill="#4a4a4a"/>)}
+          disableIndicatorAnimation="true"
+          indicator={({ isOpen }) => (isOpen ? <Up theme="outline" size="20" fill="#4a4a4a"/> : <Down theme="outline" size="20" fill="#4a4a4a"/>)}
           startContent={
             <Airplane theme="outline" size="20" fill="#4a4a4a"/>
           }  
@@ -28,7 +29,8 @@ export function ProductPolicy() {
           key="2" 
           aria-label="Accordion 2" 
           title="Privacy Policy" 
-          indicator={({ isOpen }) => (isOpen ? <Left theme="outline" size="20" fill="#4a4a4a"/> : <Up theme="outline" size="20" fill="#4a4a4a"/>)}
+          disableIndicatorAnimation="true"
+          indicator={({ isOpen }) => (isOpen ? <Up theme="outline" size="20" fill="#4a4a4a"/> : <Down theme="outline" size="20" fill="#4a4a4a"/>)}
           startContent={
             <PersonalPrivacy theme="outline" size="20" fill="#4a4a4a"/>
           }
@@ -39,7 +41,8 @@ export function ProductPolicy() {
           key="3" 
           aria-label="Accordion 3" 
           title="Return Policy" 
-          indicator={({ isOpen }) => (isOpen ? <Left theme="outline" size="20" fill="#4a4a4a"/> : <Up theme="outline" size="20" fill="#4a4a4a"/>)}
+          disableIndicatorAnimation="true"
+          indicator={({ isOpen }) => (isOpen ? <Up theme="outline" size="20" fill="#4a4a4a"/> : <Down theme="outline" size="20" fill="#4a4a4a"/>)}
           startContent={<Return theme="outline" size="20" fill="#4a4a4a"/>}>
           <p className="whitespace-pre-wrap text-sm">{returnPolicyContent}</p>
         </AccordionItem>
@@ -47,7 +50,8 @@ export function ProductPolicy() {
           key="4" 
           aria-label="Accordion 3" 
           title="About Us" 
-          indicator={({ isOpen }) => (isOpen ? <Left theme="outline" size="20" fill="#4a4a4a"/> : <Up theme="outline" size="20" fill="#4a4a4a"/>)}
+          disableIndicatorAnimation="true"
+          indicator={({ isOpen }) => (isOpen ? <Up theme="outline" size="20" fill="#4a4a4a"/> : <Down theme="outline" size="20" fill="#4a4a4a"/>)}
           startContent={<Info theme="outline" size="20" fill="#4a4a4a"/>}>
           <p className="whitespace-pre-wrap text-sm">{aboutUsContent}</p>
         </AccordionItem>
