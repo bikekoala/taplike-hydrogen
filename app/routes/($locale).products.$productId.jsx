@@ -263,7 +263,7 @@ export default function Product() {
                       <div className="h-px bg-gray-200"></div>
                     </div>
                     <div className="text-img-area py-4 text-base">
-                      <div dangerouslySetInnerHTML={{__html: descriptionHtml}} />
+                      <div dangerouslySetInnerHTML={{__html: `<style>p:not(:has(img)) {margin-bottom: 15px;}</style> ${descriptionHtml}`}} />
                     </div>
                   </AccordionItem>
                 </Accordion>

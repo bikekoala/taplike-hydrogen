@@ -4,7 +4,7 @@ import {Disclosure} from '@headlessui/react';
 import {Suspense, useEffect, useMemo, useState} from 'react';
 import {useLocation} from 'react-use';
 import {CartForm} from '@shopify/hydrogen';
-import {Back, Application, HeadsetOne} from '@icon-park/react';
+import {Back, LeftC, Application, HeadsetOne} from '@icon-park/react';
 import {useSelector, useDispatch} from 'react-redux';
 import {
   Modal,
@@ -263,7 +263,7 @@ function MobileHeader({title, isHome, openCart, openMenu, onOpen}) {
         isHome
           ? 'bg-primary/80 dark:bg-contrast/60 text-contrast dark:text-primary shadow-darkHeader'
           : 'bg-primary/80 dark:bg-contrast/60 text-contrast dark:text-primary shadow-darkHeader'
-      } flex items-center h-14 fixed lg:hidden backdrop-blur-lg z-40 top-0 justify-between w-full leading-none gap-4 px-4 md:px-8`}
+      } flex items-center h-14 fixed lg:hidden backdrop-blur-lg z-40 top-0 justify-between w-full leading-none gap-4 px-2 md:px-8`}
       // } flex lg:hidden items-center h-14 sticky backdrop-blur-lg z-40 top-0 justify-between w-full leading-none gap-4 px-4 md:px-8`}
     >
       {/* <div className="flex items-center justify-start w-full gap-4">
@@ -307,11 +307,11 @@ function MobileHeader({title, isHome, openCart, openMenu, onOpen}) {
         as={isHome ? 'h1' : 'h2'}
       >
         <div
-          className="flex flex-row justify-center items-center"
+          className="flex flex-row justify-center items-center texl-6xl"
           onClick={(e) => clickBackBtn(e)}
         >
-          <Back theme="outline" size="24" fill="#ffffff" className="mr-1" />
-          <span>BACK</span>
+          <LeftC theme="two-tone" size="28" fill={['#333' ,'#ffffff']}/>
+          <span className='text-2xl'>BACK</span>
         </div>
         {/* {title} */}
       </Heading>
