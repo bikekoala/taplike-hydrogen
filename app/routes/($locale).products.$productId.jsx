@@ -2,7 +2,6 @@ import {useRef, useEffect} from 'react';
 import {json, defer} from '@shopify/remix-oxygen';
 import {useLoaderData, useActionData, Form} from '@remix-run/react';
 import {useSelector} from 'react-redux';
-import {redirect} from 'react-router-dom';
 import {v4 as uuidv4} from 'uuid';
 import Cookies from 'js-cookie';
 import {Accordion, AccordionItem} from '@nextui-org/react';
@@ -129,7 +128,13 @@ export const action = async ({request, context}) => {
         discountCode,
       );
     }
-    return redirect(checkoutUrl);
+    return json({
+      variantId,
+      checkoutId,
+      checkoutUrl,
+      discountCode,
+      needRedirect: true,
+    });
   }
 
   return json({});
@@ -137,8 +142,18 @@ export const action = async ({request, context}) => {
 
 export default function Product() {
   /** @type {LoaderReturnData} */
-  const {product, shop} = useLoaderData();
+  const {product, shop, variants} = useLoaderData();
   const {media, title, descriptionHtml, selectedVariant} = product;
+  const actionData = useActionData() || {};
+
+  // 跳转到结账页面
+  useEffect(() => {
+    if (actionData && actionData.needRedirect && actionData.checkoutUrl) {
+      setTimeout(() => {
+        window.location.href = actionData.checkoutUrl;
+      }, 0);
+    }
+  }, [actionData.needRedirect]);
 
   return (
     <>
