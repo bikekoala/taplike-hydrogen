@@ -2,6 +2,7 @@ import {useRef, useEffect} from 'react';
 import {json, defer} from '@shopify/remix-oxygen';
 import {useLoaderData, useActionData, Form} from '@remix-run/react';
 import {useSelector} from 'react-redux';
+import {Redirect} from 'react-router-dom';
 import {v4 as uuidv4} from 'uuid';
 import Cookies from 'js-cookie';
 import {Accordion, AccordionItem} from '@nextui-org/react';
@@ -149,7 +150,7 @@ export default function Product() {
   // 跳转到结账页面
   useEffect(() => {
     if (actionData && actionData.needRedirect && actionData.checkoutUrl) {
-      window.location.href = actionData.checkoutUrl;
+      return <Redirect to={actionData.checkoutUrl} />;
     }
   }, [actionData.needRedirect]);
 
