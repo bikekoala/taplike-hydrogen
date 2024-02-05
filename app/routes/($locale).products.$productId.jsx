@@ -146,15 +146,6 @@ export default function Product() {
   const {media, title, descriptionHtml, selectedVariant} = product;
   const actionData = useActionData() || {};
 
-  // 跳转到结账页面
-  useEffect(() => {
-    if (actionData && actionData.needRedirect && actionData.checkoutUrl) {
-      setTimeout(() => {
-        window.location.href = actionData.checkoutUrl;
-      }, 0);
-    }
-  }, [actionData.needRedirect]);
-
   return (
     <>
       <Section className="px-0 md:px-8 lg:px-12">
@@ -282,6 +273,13 @@ export function ProductForm() {
     }, 1000);
     return () => clearTimeout(timeoutId);
   }, []);
+
+  // 跳转到结账页面
+  useEffect(() => {
+    if (actionData && actionData.needRedirect && actionData.checkoutUrl) {
+      window.location.href = actionData.checkoutUrl;
+    }
+  }, [actionData.needRedirect]);
 
   /**
    * Likewise, we're defaulting to the first variant for purposes
