@@ -162,10 +162,7 @@ export default function Product() {
   const {product, shop, variants} = useLoaderData();
   const {media, title, descriptionHtml, selectedVariant} = product;
   const {shippingPolicy, refundPolicy} = shop;
-  const actionData = useActionData();
-  const [date, setDate] = useState(new Date());
-  const year = date.getFullYear();
-  const copyRightInfo = `© ${year}, ${shop.name}`;
+  const actionData = useActionData() || {};
 
   // 跳转到结账页面
   useEffect(() => {
@@ -524,7 +521,7 @@ export default function Product() {
                   </div>
                 </div>
                 <div className="copyright-box text-sm mb-4">
-                  {copyRightInfo}
+                  {`© ${new Date().getFullYear()}, ${shop.name}`}
                 </div>
                 <div className="h-16 w-full mt-6"></div>
               </div>
