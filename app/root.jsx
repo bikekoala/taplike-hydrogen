@@ -13,7 +13,6 @@ import {
 } from '@remix-run/react';
 import {ShopifySalesChannel, Seo, useNonce} from '@shopify/hydrogen';
 import invariant from 'tiny-invariant';
-import {NextUIProvider} from "@nextui-org/react";
 
 import {Layout} from '~/components';
 import {seoPayload} from '~/lib/seo.server';
@@ -137,14 +136,12 @@ export default function App() {
         </head>
         <body>
           <Provider store={store}>
-            <NextUIProvider>
               <Layout
                 key={`${locale.language}-${locale.country}`}
                 layout={data.layout}
               >
                 <Outlet />
               </Layout>
-            </NextUIProvider>
             <ScrollRestoration nonce={nonce} />
             <Scripts nonce={nonce} />
             <LiveReload nonce={nonce} />
