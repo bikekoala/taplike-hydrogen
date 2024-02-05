@@ -2,6 +2,7 @@ import {useRef, useEffect} from 'react';
 import {json, defer} from '@shopify/remix-oxygen';
 import {useLoaderData, useActionData, Form} from '@remix-run/react';
 import {useSelector} from 'react-redux';
+import {redirect} from 'react-router-dom';
 import {v4 as uuidv4} from 'uuid';
 import Cookies from 'js-cookie';
 import {Accordion, AccordionItem} from '@nextui-org/react';
@@ -102,14 +103,9 @@ export async function loader({params, request, context}) {
 export const action = async ({request, context}) => {
   const formData = await request.formData();
   const action = formData.get('action');
-  const variantGid = formData.get('variantGid');
-  const variantId = formData.get('variantId');
-  const checkoutId = formData.get('checkoutId');
-  const checkoutUrl = formData.get('checkoutUrl');
-  const checkoutGid = formData.get('checkoutGid');
-  const discountCode = formData.get('discountCode');
 
   // 生成结账链接
+  const variantGid = formData.get('variantGid');
   if (action === 'createCheckout') {
     const variantId = variantGid.split('/')[4];
     const checkout = await createCheckout(context.storefront, variantId);
@@ -120,21 +116,38 @@ export const action = async ({request, context}) => {
   }
 
   // 应用折扣码
+  const variantId = formData.get('variantId');
+  const checkoutId = formData.get('checkoutId');
+  const checkoutGid = formData.get('checkoutGid');
+  const checkoutUrl = formData.get('checkoutUrl');
+  const discountCode = formData.get('discountCode');
+  const shop = JSON.parse(formData.get('shop'));
+  const product = JSON.parse(formData.get('product'));
+  const pageInfo = JSON.parse(formData.get('_pageInfo'));
+  const userId = formData.get('_userId');
   if (action === 'applyCheckoutDiscountCode') {
     if (discountCode) {
       await applyCheckoutDiscountCode(
         context.storefront,
         checkoutGid,
+        checkoutGid,
         discountCode,
       );
     }
-    return json({
+
+    // 事件统计：开始下单
+    await sendPageEvent(
+      'InitiateCheckout',
+      shop,
+      product,
       variantId,
       checkoutId,
-      checkoutUrl,
       discountCode,
-      needRedirect: true,
-    });
+      pageInfo,
+      userId,
+    );
+
+    return redirect(checkoutUrl);
   }
 
   return json({});
@@ -142,9 +155,8 @@ export const action = async ({request, context}) => {
 
 export default function Product() {
   /** @type {LoaderReturnData} */
-  const {product, shop, variants} = useLoaderData();
+  const {product, shop} = useLoaderData();
   const {media, title, descriptionHtml, selectedVariant} = product;
-  const actionData = useActionData() || {};
 
   return (
     <>
@@ -238,7 +250,7 @@ export default function Product() {
  */
 export function ProductForm() {
   /** @type {LoaderReturnData} */
-  const {shop, product, analytics} = useLoaderData();
+  const {shop, product} = useLoaderData();
   const actionData = useActionData() || {};
 
   const checkoutFormBtnRef = useRef(null);
@@ -249,15 +261,6 @@ export function ProductForm() {
   // 处理点击购买按钮行为
   useEffect(() => {
     if (!(buynowClickNum !== 0 && actionData.checkoutUrl)) return;
-    // 事件统计：开始下单
-    sendPageEvent(
-      'InitiateCheckout',
-      shop,
-      product,
-      actionData.variantId,
-      actionData.checkoutId,
-      discountCode,
-    );
     // 模拟提交，应用折扣码
     discountFormBtnRef.current.click();
   }, [buynowClickNum]);
@@ -274,13 +277,6 @@ export function ProductForm() {
     return () => clearTimeout(timeoutId);
   }, []);
 
-  // 跳转到结账页面
-  useEffect(() => {
-    if (actionData && actionData.needRedirect && actionData.checkoutUrl) {
-      window.location.href = actionData.checkoutUrl;
-    }
-  }, [actionData.needRedirect]);
-
   /**
    * Likewise, we're defaulting to the first variant for purposes
    * of add to cart if there is none returned from the loader.
@@ -288,6 +284,10 @@ export function ProductForm() {
    */
   const selectedVariant = product.selectedVariant;
   const isOutOfStock = !selectedVariant?.availableForSale;
+
+  const discountFormVals = {};
+  discountFormVals.pageInfo = getPageInfo();
+  discountFormVals.userId = genTmpUserId();
 
   return (
     <>
@@ -330,6 +330,22 @@ export function ProductForm() {
                   type="hidden"
                   name="checkoutId"
                   value={actionData?.checkoutId || ''}
+                />
+                <input
+                  type="hidden"
+                  name="product"
+                  value={JSON.stringify(product)}
+                />
+                <input type="hidden" name="shop" value={JSON.stringify(shop)} />
+                <input
+                  type="hidden"
+                  name="_pageInfo"
+                  value={JSON.stringify(discountFormVals.pageInfo)}
+                />
+                <input
+                  type="hidden"
+                  name="_userId"
+                  value={discountFormVals.userId}
                 />
                 <button ref={discountFormBtnRef}></button>
               </Form>
@@ -499,6 +515,7 @@ async function applyCheckoutDiscountCode(storefront, checkoutId, discountCode) {
  * 发送页面事件到服务端
  * event: ViewContent, InitiateCheckout
  * @see https://business-api.tiktok.com/portal/docs?id=1741601162187777
+ * NOTE: 前端 & 后端调用
  */
 function sendPageEvent(
   event,
@@ -507,36 +524,19 @@ function sendPageEvent(
   variantId = null,
   checkoutId = null,
   discountCode = null,
+  _pageInfo = null,
+  _userId = null,
 ) {
-  const _getCidInfo = () => {
-    const ret = {source: 'web', cid: null};
-    const searchParams = new URLSearchParams(window.location.search);
-    const ttclid = searchParams.get('ttclid');
-    if (ttclid) {
-      ret.source = 'tiktok';
-      ret.cid = ttclid;
-    }
-    return ret;
-  };
-
-  const _getUserId = () => {
-    let userId = Cookies.get('_user_id');
-    if (!userId) {
-      userId = uuidv4();
-      Cookies.set('_user_id', userId, {expires: 365});
-    }
-    return userId;
-  };
-
   let data = {};
-  const cidInfo = _getCidInfo();
-  data.source = cidInfo.source;
+  const pageInfo = _pageInfo || getPageInfo();
+  data.source = pageInfo.source;
   data.shop = shop.primaryDomain.host;
   data.event = event;
   data.eventId = uuidv4();
-  data.userId = _getUserId();
-  data.cid = cidInfo.cid;
-  data.page = window.location.href;
+  data.userId = _userId || genTmpUserId();
+  data.cid = pageInfo.cid;
+  data.ua = pageInfo.ua;
+  data.page = pageInfo.page;
   data.productId = product.id.split('/')[4];
   data.productVariantId = variantId;
   data.productPrice = Number(product.variants.nodes[0].price.amount);
@@ -548,9 +548,46 @@ function sendPageEvent(
 
   const api = 'https://seller.taplike.com/api/common/hydrogen/trackEvent';
   //const api = 'http://10.20.1.10:30030/common/hydrogen/trackEvent';
-  fetch(api, {
+  return fetch(api, {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify(data),
   });
+}
+
+/**
+ * 生成用于统计的临时用户ID
+ * NOTE: 前端调用
+ */
+function genTmpUserId() {
+  if (typeof window === 'undefined') return '';
+
+  let userId = Cookies.get('_user_id');
+  if (!userId) {
+    userId = uuidv4();
+    Cookies.set('_user_id', userId, {expires: 365});
+  }
+  return userId;
+}
+
+/**
+ * 查询 URL 中的 CID 信息，以确定投放的广告平台
+ * NOTE: 前端调用
+ */
+function getPageInfo() {
+  if (typeof window === 'undefined') return {};
+
+  const ret = {
+    source: 'web',
+    cid: null,
+    page: window.location.href,
+    ua: window.navigator.userAgent,
+  };
+  const searchParams = new URLSearchParams(window.location.search);
+  const ttclid = searchParams.get('ttclid');
+  if (ttclid) {
+    ret.source = 'tiktok';
+    ret.cid = ttclid;
+  }
+  return ret;
 }
