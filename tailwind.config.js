@@ -10,6 +10,9 @@ export default {
   ],
   theme: {
     extend: {
+      zIndex: {
+        999: '999',
+      },
       colors: {
         primary: 'rgb(var(--color-primary) / <alpha-value>)',
         contrast: 'rgb(var(--color-contrast) / <alpha-value>)',
