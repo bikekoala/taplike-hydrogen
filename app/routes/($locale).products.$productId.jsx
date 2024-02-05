@@ -229,22 +229,12 @@ export default function Product() {
               </div>
 
               {/* 产品政策 */}
-              <div className="policy-box mb-2 px-4 bg-white">
+              <div className="policy-box px-4 bg-white">
                 <ProductPolicy></ProductPolicy>
               </div>
 
-              <Suspense fallback={<ProductForm variants={[]} />}>
-                <Await
-                  errorElement="There was a problem loading related products"
-                  resolve={variants}
-                >
-                  {(resp) => (
-                    <ProductForm
-                      variants={resp.product?.variants.nodes || []}
-                    />
-                  )}
-                </Await>
-              </Suspense>
+              {/* 产品表单 */}
+              <ProductForm />
 
               {/* 底部栏信息栏 */}
               <ProductFooter shopname={shop.name}></ProductFooter>
@@ -261,7 +251,7 @@ export default function Product() {
  *   variants: ProductVariantFragmentFragment[];
  * }}
  */
-export function ProductForm({variants}) {
+export function ProductForm() {
   /** @type {LoaderReturnData} */
   const {shop, product, analytics} = useLoaderData();
   const actionData = useActionData() || {};
@@ -306,217 +296,56 @@ export function ProductForm({variants}) {
    */
   const selectedVariant = product.selectedVariant;
   const isOutOfStock = !selectedVariant?.availableForSale;
-  const isOnSale =
-    selectedVariant?.price?.amount &&
-    selectedVariant?.compareAtPrice?.amount &&
-    selectedVariant?.price?.amount < selectedVariant?.compareAtPrice?.amount;
-
-  const productAnalytics = {
-    ...analytics.products[0],
-    quantity: 1,
-  };
 
   return (
-    <div className="hidden grid gap-10">
-      <div className="grid gap-4">
-        <VariantSelector
-          handle={product.handle}
-          options={product.options}
-          variants={variants}
-        >
-          {({option}) => {
-            return (
-              <div
-                key={option.name}
-                className="flex flex-col flex-wrap mb-4 gap-y-2 last:mb-0"
-              >
-                <Heading as="legend" size="lead" className="min-w-[4rem]">
-                  {option.name}
-                </Heading>
-                <div className="flex flex-wrap items-baseline gap-4">
-                  {option.values.length > 7 ? (
-                    <div className="relative w-full">
-                      <Listbox>
-                        {({open}) => (
-                          <>
-                            <Listbox.Button
-                              ref={popupCloseBtnRef}
-                              className={clsx(
-                                'flex items-center justify-between w-full py-3 px-4 border border-primary',
-                                open
-                                  ? 'rounded-b md:rounded-t md:rounded-b-none'
-                                  : 'rounded',
-                              )}
-                            >
-                              <span>{option.value}</span>
-                              <IconCaret direction={open ? 'up' : 'down'} />
-                            </Listbox.Button>
-                            <Listbox.Options
-                              className={clsx(
-                                'border-primary bg-contrast absolute bottom-12 z-30 grid h-48 w-full overflow-y-scroll rounded-t border px-2 py-2 transition-[max-height] duration-150 sm:bottom-auto md:rounded-b md:rounded-t-none md:border-t-0 md:border-b',
-                                open ? 'max-h-48' : 'max-h-0',
-                              )}
-                            >
-                              {option.values
-                                .filter((value) => value.isAvailable)
-                                .map(({value, to, isActive}) => (
-                                  <Listbox.Option
-                                    key={`option-${option.name}-${value}`}
-                                    value={value}
-                                  >
-                                    {({active}) => (
-                                      <Link
-                                        to={to}
-                                        className={clsx(
-                                          'text-primary w-full p-2 transition rounded flex justify-start items-center text-left cursor-pointer',
-                                          active && 'bg-primary/10',
-                                        )}
-                                        onClick={() => {
-                                          if (!popupCloseBtnRef?.current)
-                                            return;
-                                          popupCloseBtnRef.current.click();
-                                        }}
-                                      >
-                                        {value}
-                                        {isActive && (
-                                          <span className="ml-2">
-                                            <IconCheck />
-                                          </span>
-                                        )}
-                                      </Link>
-                                    )}
-                                  </Listbox.Option>
-                                ))}
-                            </Listbox.Options>
-                          </>
-                        )}
-                      </Listbox>
-                    </div>
-                  ) : (
-                    option.values.map(({value, isAvailable, isActive, to}) => (
-                      <Link
-                        key={option.name + value}
-                        to={to}
-                        preventScrollReset
-                        prefetch="intent"
-                        replace
-                        className={clsx(
-                          'leading-none py-1 border-b-[1.5px] cursor-pointer transition-all duration-200',
-                          isActive
-                            ? 'border-primary/50 text-[#EE1D52] border-[#EE1D52]'
-                            : 'border-primary/0',
-                          isAvailable ? 'opacity-100' : 'opacity-50',
-                        )}
-                      >
-                        {value}
-                      </Link>
-                    ))
-                  )}
-                </div>
-              </div>
-            );
-          }}
-        </VariantSelector>
-        {selectedVariant && (
-          <div className="grid items-stretch gap-4">
-            {!isOutOfStock && (
-              <>
-                <Form method="post">
-                  <input type="hidden" name="action" value="createCheckout" />
-                  <input
-                    type="hidden"
-                    name="variantGid"
-                    value={selectedVariant?.id}
-                  />
-                  <button ref={checkoutFormBtnRef}></button>
-                </Form>
-                <Form method="post">
-                  <input
-                    type="hidden"
-                    name="action"
-                    value="applyCheckoutDiscountCode"
-                  />
-                  <input
-                    type="hidden"
-                    name="discountCode"
-                    value={discountCode}
-                  />
-                  <input
-                    type="hidden"
-                    name="checkoutGid"
-                    value={actionData?.checkoutGid || ''}
-                  />
-                  <input
-                    type="hidden"
-                    name="checkoutUrl"
-                    value={actionData?.checkoutUrl || ''}
-                  />
-                  <input
-                    type="hidden"
-                    name="variantId"
-                    value={actionData?.variantId || ''}
-                  />
-                  <input
-                    type="hidden"
-                    name="checkoutId"
-                    value={actionData?.checkoutId || ''}
-                  />
-                  <button ref={discountFormBtnRef}></button>
-                </Form>
-              </>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-/**
- * @param {{
- *   title: string;
- *   content: string;
- *   learnMore?: string;
- * }}
- */
-function ProductDetail({title, content, learnMore}) {
-  return (
-    <Disclosure key={title} as="div" className="grid w-full gap-2">
-      {({open}) => (
-        <>
-          <Disclosure.Button className="text-left">
-            <div className="flex justify-between">
-              <Text size="lead" as="h4">
-                {title}
-              </Text>
-              <IconClose
-                className={clsx(
-                  'transition-transform transform-gpu duration-200',
-                  !open && 'rotate-[45deg]',
-                )}
-              />
-            </div>
-          </Disclosure.Button>
-
-          <Disclosure.Panel className={'pb-4 pt-2 grid gap-2'}>
-            <div
-              className="prose dark:prose-invert"
-              dangerouslySetInnerHTML={{__html: content}}
-            />
-            {learnMore && (
-              <div className="">
-                <Link
-                  className="pb-px border-b border-primary/30 text-primary/50"
-                  to={learnMore}
-                >
-                  Learn more
-                </Link>
-              </div>
-            )}
-          </Disclosure.Panel>
-        </>
+    <>
+      {selectedVariant && (
+        <div className="hidden">
+          {!isOutOfStock && (
+            <>
+              <Form method="post">
+                <input type="hidden" name="action" value="createCheckout" />
+                <input
+                  type="hidden"
+                  name="variantGid"
+                  value={selectedVariant?.id}
+                />
+                <button ref={checkoutFormBtnRef}></button>
+              </Form>
+              <Form method="post">
+                <input
+                  type="hidden"
+                  name="action"
+                  value="applyCheckoutDiscountCode"
+                />
+                <input type="hidden" name="discountCode" value={discountCode} />
+                <input
+                  type="hidden"
+                  name="checkoutGid"
+                  value={actionData?.checkoutGid || ''}
+                />
+                <input
+                  type="hidden"
+                  name="checkoutUrl"
+                  value={actionData?.checkoutUrl || ''}
+                />
+                <input
+                  type="hidden"
+                  name="variantId"
+                  value={actionData?.variantId || ''}
+                />
+                <input
+                  type="hidden"
+                  name="checkoutId"
+                  value={actionData?.checkoutId || ''}
+                />
+                <button ref={discountFormBtnRef}></button>
+              </Form>
+            </>
+          )}
+        </div>
       )}
-    </Disclosure>
+    </>
   );
 }
 

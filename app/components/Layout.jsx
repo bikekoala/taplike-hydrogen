@@ -86,7 +86,13 @@ export function Layout({children, layout}) {
           </a>
         </div>
         {headerMenu && layout?.shop.name && (
-          <Header title={layout.shop.name} menu={headerMenu} onOpen={onOpen} onDiscountModalChange={onDiscountModalChange} isDiscountModalOpen={isOpen} />
+          <Header
+            title={layout.shop.name}
+            menu={headerMenu}
+            onOpen={onOpen}
+            onDiscountModalChange={onDiscountModalChange}
+            isDiscountModalOpen={isOpen}
+          />
         )}
         <main role="main" id="mainContent" className="flex-grow">
           {children}
@@ -103,7 +109,7 @@ export function Layout({children, layout}) {
         onOpenChange={onDiscountModalChange}
         placement={'center'}
         backdrop={'opaque'}
-        className='z-50'
+        className="z-50"
       >
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1"></ModalHeader>
@@ -122,7 +128,13 @@ export function Layout({children, layout}) {
 /**
  * @param {{title: string; menu?: EnhancedMenu}}
  */
-function Header({title, menu, onOpen, isDiscountModalOpen, onDiscountModalChange}) {
+function Header({
+  title,
+  menu,
+  onOpen,
+  isDiscountModalOpen,
+  onDiscountModalChange,
+}) {
   const isHome = useIsHomePath();
 
   const {
@@ -245,19 +257,24 @@ function MenuMobileNav({menu, onClose}) {
  *   openMenu: () => void;
  * }}
  */
-function MobileHeader({title, isHome, onOpen, isDiscountModalOpen, onDiscountModalChange}) {
-
+function MobileHeader({
+  title,
+  isHome,
+  onOpen,
+  isDiscountModalOpen,
+  onDiscountModalChange,
+}) {
   const params = useParams();
 
   const clickBackBtn = (e) => {
     e.stopPropagation();
     if (isDiscountModalOpen === true) {
-      onDiscountModalChange()
+      onDiscountModalChange();
       setTimeout(() => {
-        onOpen()
-      }, 300)
+        onOpen();
+      }, 300);
     } else {
-      onOpen()
+      onOpen();
     }
   };
 
@@ -315,8 +332,8 @@ function MobileHeader({title, isHome, onOpen, isDiscountModalOpen, onDiscountMod
           className="flex flex-row justify-center items-center texl-6xl"
           onClick={(e) => clickBackBtn(e)}
         >
-          <LeftC theme="two-tone" size="28" fill={['#333' ,'#ffffff']}/>
-          <span className='text-2xl'>BACK</span>
+          <LeftC theme="two-tone" size="28" fill={['#333', '#ffffff']} />
+          <span className="text-2xl">BACK</span>
         </div>
         {/* {title} */}
       </Heading>
