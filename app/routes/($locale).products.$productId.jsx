@@ -114,18 +114,26 @@ export async function loader({params, request, context}) {
  */
 export const action = async ({request, context}) => {
   const formData = await request.formData();
+  const action = formData.get('action');
   const variantGid = formData.get('variantGid');
+  const variantId = formData.get('variantId');
+  const checkoutId = formData.get('checkoutId');
+  const checkoutUrl = formData.get('checkoutUrl');
+  const checkoutGid = formData.get('checkoutGid');
   const discountCode = formData.get('discountCode');
 
   // 生成结账链接
-  if (variantGid) {
+  if (action === 'createCheckout') {
     const variantId = variantGid.split('/')[4];
     const checkout = await createCheckout(context.storefront, variantId);
     const checkoutId = new URL(checkout.webUrl).pathname.split('/')[3];
     const checkoutGid = checkout.id;
     const checkoutUrl = checkout.webUrl;
+    return json({variantId, checkoutId, checkoutUrl, checkoutGid});
+  }
 
-    // 应用折扣码
+  // 应用折扣码
+  if (action === 'applyCheckoutDiscountCode') {
     if (discountCode) {
       await applyCheckoutDiscountCode(
         context.storefront,
@@ -133,11 +141,16 @@ export const action = async ({request, context}) => {
         discountCode,
       );
     }
-
-    return json({variantId, checkoutUrl, checkoutId, discountCode});
+    return json({
+      variantId,
+      checkoutId,
+      checkoutUrl,
+      discountCode,
+      needRedirect: true,
+    });
   }
 
-  return null;
+  return json({});
 };
 
 export default function Product() {
@@ -145,30 +158,14 @@ export default function Product() {
   const {product, shop, variants} = useLoaderData();
   const {media, title, descriptionHtml, selectedVariant} = product;
   const {shippingPolicy, refundPolicy} = shop;
-  const actionData = useActionData();
-
-  // 事件统计
-  useEffect(() => {
-    if (actionData && actionData.checkoutUrl) {
-      // 开始下单
-      sendPageEvent(
-        'InitiateCheckout',
-        shop,
-        product,
-        actionData.variantId,
-        actionData.checkoutId,
-        actionData.discountCode,
-      );
-    } else {
-      // 加载页面
-      sendPageEvent('ViewContent', shop, product);
-    }
-  }, [actionData]);
+  const actionData = useActionData() || {};
 
   // 跳转到结账页面
-  if (actionData && actionData.checkoutUrl) {
-    window.location.href = actionData.checkoutUrl;
-  }
+  useEffect(() => {
+    if (actionData && actionData.checkoutUrl) {
+      //TODO window.location.href = actionData.checkoutUrl;
+    }
+  }, [actionData.needRedirect]);
 
   return (
     <>
@@ -310,18 +307,41 @@ export default function Product() {
  */
 export function ProductForm({variants}) {
   /** @type {LoaderReturnData} */
-  const {shop, product, analytics, storeDomain} = useLoaderData();
+  const {shop, product, analytics} = useLoaderData();
+  const actionData = useActionData() || {};
 
-  const closeRef = useRef(null);
-  const formBtnRef = useRef(null);
-
-  const storeClickNum = useSelector((state) => state.clickNum);
+  const checkoutFormBtnRef = useRef(null);
+  const discountFormBtnRef = useRef(null);
+  const buynowClickNum = useSelector((state) => state.clickNum);
   const discountCode = useSelector((state) => state.couponCode);
+
+  // 处理点击购买按钮行为
   useEffect(() => {
-    if (storeClickNum != 0) {
-      formBtnRef.current.click();
-    }
-  }, [storeClickNum]);
+    if (!(buynowClickNum !== 0 && actionData.checkoutUrl)) return;
+    // 事件统计：开始下单
+    sendPageEvent(
+      'InitiateCheckout',
+      shop,
+      product,
+      actionData.variantId,
+      actionData.checkoutId,
+      discountCode,
+    );
+    // 模拟提交，应用折扣码
+    discountFormBtnRef.current.click();
+  }, [buynowClickNum]);
+
+  // 首次执行
+  useEffect(() => {
+    // 事件统计：浏览页面
+    sendPageEvent('ViewContent', shop, product);
+
+    // 模拟提交，延迟自动创建结账数据
+    const timeoutId = setTimeout(() => {
+      checkoutFormBtnRef.current.click();
+    }, 1000);
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   /**
    * Likewise, we're defaulting to the first variant for purposes
@@ -329,9 +349,7 @@ export function ProductForm({variants}) {
    * A developer can opt out of this, too.
    */
   const selectedVariant = product.selectedVariant;
-
   const isOutOfStock = !selectedVariant?.availableForSale;
-
   const isOnSale =
     selectedVariant?.price?.amount &&
     selectedVariant?.compareAtPrice?.amount &&
@@ -366,7 +384,7 @@ export function ProductForm({variants}) {
                         {({open}) => (
                           <>
                             <Listbox.Button
-                              ref={closeRef}
+                              ref={popupCloseBtnRef}
                               className={clsx(
                                 'flex items-center justify-between w-full py-3 px-4 border border-primary',
                                 open
@@ -398,8 +416,9 @@ export function ProductForm({variants}) {
                                           active && 'bg-primary/10',
                                         )}
                                         onClick={() => {
-                                          if (!closeRef?.current) return;
-                                          closeRef.current.click();
+                                          if (!popupCloseBtnRef?.current)
+                                            return;
+                                          popupCloseBtnRef.current.click();
                                         }}
                                       >
                                         {value}
@@ -496,20 +515,50 @@ export function ProductForm({variants}) {
                 Checkout
               </button>
               */
-              <Form method="post" name="">
-                <input
-                  type="hidden"
-                  name="variantGid"
-                  value={selectedVariant?.id}
-                />
-                <input type="hidden" name="discountCode" value={discountCode} />
-                <button
-                  ref={formBtnRef}
-                  className="bg-primary text-contrast rounded py-2 px-4 focus:shadow-outline block w-full font-bold"
-                >
-                  Checkout
-                </button>
-              </Form>
+              <>
+                <Form method="post">
+                  <input type="hidden" name="action" value="createCheckout" />
+                  <input
+                    type="hidden"
+                    name="variantGid"
+                    value={selectedVariant?.id}
+                  />
+                  <button ref={checkoutFormBtnRef}></button>
+                </Form>
+                <Form method="post">
+                  <input
+                    type="hidden"
+                    name="action"
+                    value="applyCheckoutDiscountCode"
+                  />
+                  <input
+                    type="hidden"
+                    name="discountCode"
+                    value={discountCode}
+                  />
+                  <input
+                    type="hidden"
+                    name="checkoutGid"
+                    value={actionData?.checkoutGid || ''}
+                  />
+                  <input
+                    type="hidden"
+                    name="checkoutUrl"
+                    value={actionData?.checkoutUrl || ''}
+                  />
+                  <input
+                    type="hidden"
+                    name="variantId"
+                    value={actionData?.variantId || ''}
+                  />
+                  <input
+                    type="hidden"
+                    name="checkoutId"
+                    value={actionData?.checkoutId || ''}
+                  />
+                  <button ref={discountFormBtnRef}></button>
+                </Form>
+              </>
             )}
           </div>
         )}
