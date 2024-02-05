@@ -136,19 +136,19 @@ export default function App() {
           <Links />
         </head>
         <body>
-        <Provider store={store}>
-          <NextUIProvider>
-            <Layout
-              key={`${locale.language}-${locale.country}`}
-              layout={data.layout}
-            >
-              <Outlet />
-            </Layout>
-          </NextUIProvider>
-        </Provider>
-          <ScrollRestoration nonce={nonce} />
-          <Scripts nonce={nonce} />
-          <LiveReload nonce={nonce} />
+          <Provider store={store}>
+            <NextUIProvider>
+              <Layout
+                key={`${locale.language}-${locale.country}`}
+                layout={data.layout}
+              >
+                <Outlet />
+              </Layout>
+            </NextUIProvider>
+            <ScrollRestoration nonce={nonce} />
+            <Scripts nonce={nonce} />
+            <LiveReload nonce={nonce} />
+          </Provider>
         </body>
       </html>
   );

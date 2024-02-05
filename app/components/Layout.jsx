@@ -4,15 +4,13 @@ import {Disclosure} from '@headlessui/react';
 import {Suspense, useEffect, useMemo, useState} from 'react';
 import {useLocation} from 'react-use';
 import {CartForm} from '@shopify/hydrogen';
-import {Back, Application, HeadsetOne} from '@icon-park/react';
+import {Back, LeftC, Application, HeadsetOne} from '@icon-park/react';
 import {useSelector, useDispatch} from 'react-redux';
 import {
   Modal,
   ModalContent,
   ModalHeader,
   ModalBody,
-  ModalFooter,
-  Button,
   useDisclosure,
 } from '@nextui-org/react';
 import {
@@ -48,7 +46,6 @@ export function Layout({children, layout}) {
   const isHome = useIsHomePath();
   const [discountModalIndex, setDiscountModalIndex] = useState(0);
   const {pathname} = useLocation();
-  const reduxData = useSelector((state) => state.clickNum);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -89,7 +86,7 @@ export function Layout({children, layout}) {
           </a>
         </div>
         {headerMenu && layout?.shop.name && (
-          <Header title={layout.shop.name} menu={headerMenu} onOpen={onOpen} />
+          <Header title={layout.shop.name} menu={headerMenu} onOpen={onOpen} onDiscountModalChange={onDiscountModalChange} isDiscountModalOpen={isOpen} />
         )}
         <main role="main" id="mainContent" className="flex-grow">
           {children}
@@ -103,10 +100,10 @@ export function Layout({children, layout}) {
         // isOpen={true}
         size="xs"
         isOpen={isOpen}
-        isDismissable={false}
         onOpenChange={onDiscountModalChange}
         placement={'center'}
         backdrop={'opaque'}
+        className='z-50'
       >
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1"></ModalHeader>
@@ -125,7 +122,7 @@ export function Layout({children, layout}) {
 /**
  * @param {{title: string; menu?: EnhancedMenu}}
  */
-function Header({title, menu, onOpen}) {
+function Header({title, menu, onOpen, isDiscountModalOpen, onDiscountModalChange}) {
   const isHome = useIsHomePath();
 
   const {
@@ -167,6 +164,8 @@ function Header({title, menu, onOpen}) {
         openCart={openCart}
         openMenu={openMenu}
         onOpen={onOpen}
+        onDiscountModalChange={onDiscountModalChange}
+        isDiscountModalOpen={isDiscountModalOpen}
       />
     </>
   );
@@ -246,14 +245,20 @@ function MenuMobileNav({menu, onClose}) {
  *   openMenu: () => void;
  * }}
  */
-function MobileHeader({title, isHome, openCart, openMenu, onOpen}) {
-  // useHeaderStyleFix(containerStyle, setContainerStyle, isHome);
+function MobileHeader({title, isHome, onOpen, isDiscountModalOpen, onDiscountModalChange}) {
 
   const params = useParams();
 
   const clickBackBtn = (e) => {
     e.stopPropagation();
-    onOpen();
+    if (isDiscountModalOpen === true) {
+      onDiscountModalChange()
+      setTimeout(() => {
+        onOpen()
+      }, 300)
+    } else {
+      onOpen()
+    }
   };
 
   return (
@@ -263,7 +268,7 @@ function MobileHeader({title, isHome, openCart, openMenu, onOpen}) {
         isHome
           ? 'bg-primary/80 dark:bg-contrast/60 text-contrast dark:text-primary shadow-darkHeader'
           : 'bg-primary/80 dark:bg-contrast/60 text-contrast dark:text-primary shadow-darkHeader'
-      } flex items-center h-14 fixed lg:hidden backdrop-blur-lg z-40 top-0 justify-between w-full leading-none gap-4 px-4 md:px-8`}
+      } flex items-center h-14 fixed lg:hidden backdrop-blur-lg z-999 top-0 justify-between w-full leading-none gap-4 px-2 md:px-8`}
       // } flex lg:hidden items-center h-14 sticky backdrop-blur-lg z-40 top-0 justify-between w-full leading-none gap-4 px-4 md:px-8`}
     >
       {/* <div className="flex items-center justify-start w-full gap-4">
@@ -307,11 +312,11 @@ function MobileHeader({title, isHome, openCart, openMenu, onOpen}) {
         as={isHome ? 'h1' : 'h2'}
       >
         <div
-          className="flex flex-row justify-center items-center"
+          className="flex flex-row justify-center items-center texl-6xl"
           onClick={(e) => clickBackBtn(e)}
         >
-          <Back theme="outline" size="24" fill="#ffffff" className="mr-1" />
-          <span>BACK</span>
+          <LeftC theme="two-tone" size="28" fill={['#333' ,'#ffffff']}/>
+          <span className='text-2xl'>BACK</span>
         </div>
         {/* {title} */}
       </Heading>
@@ -338,7 +343,7 @@ function MobileFooter({clickBuyBtn}) {
         <div className="h-px bg-gray-200"></div>
       </div>
       <div className="flex flex-row w-full px-4 justify-between items-center h-16">
-        <div className="mobile-footer-left-box flex flex-row justify-center items-center mr-5">
+        {/* <div className="mobile-footer-left-box flex flex-row justify-center items-center mr-5">
           <Application
             theme="outline"
             size="20"
@@ -346,7 +351,7 @@ function MobileFooter({clickBuyBtn}) {
             className="mr-3"
           />
           <HeadsetOne theme="outline" size="20" fill="#4a4a4a" />
-        </div>
+        </div> */}
         <div
           onClick={clickBtn}
           className="mobile-footer-right-box flex justify-center items-center flex-1 h-11 bg-rose-500 rounded-sm text-white text-base"
