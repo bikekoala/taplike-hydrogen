@@ -130,7 +130,6 @@ export const action = async ({request, context}) => {
       await applyCheckoutDiscountCode(
         context.storefront,
         checkoutGid,
-        checkoutGid,
         discountCode,
       );
     }
