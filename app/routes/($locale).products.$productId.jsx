@@ -1,25 +1,17 @@
-import {useRef, useEffect, Suspense} from 'react';
-import {Disclosure, Listbox} from '@headlessui/react';
+import {useRef, useEffect} from 'react';
 import {json, defer} from '@shopify/remix-oxygen';
-import {useLoaderData, useActionData, Await, Form} from '@remix-run/react';
+import {useLoaderData, useActionData, Form} from '@remix-run/react';
 import {useSelector} from 'react-redux';
 import {v4 as uuidv4} from 'uuid';
 import Cookies from 'js-cookie';
 import {Accordion, AccordionItem} from '@nextui-org/react';
 import {Down, Up, Commodity} from '@icon-park/react';
 
-import {AnalyticsPageType, VariantSelector} from '@shopify/hydrogen';
+import {AnalyticsPageType} from '@shopify/hydrogen';
 import invariant from 'tiny-invariant';
-import clsx from 'clsx';
 import {
-  Heading,
-  IconCaret,
-  IconCheck,
-  IconClose,
   ProductGallery,
   Section,
-  Text,
-  Link,
   ProductPolicy,
   ProductFooter,
 } from '~/components';

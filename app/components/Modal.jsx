@@ -61,7 +61,7 @@ export function DiscountModal({index, onClickBuyBtn}) {
         <div className="mb-6 w-16 h-16">
           <img src={giftImg1} alt="" className="w-16" />
         </div>
-        <div className="text-3xl font-bold mb-8 underline underline-offset-8">
+        <div className="text-5xl font-bold mb-8 underline underline-offset-8">
           5% OFF
         </div>
         <div
@@ -80,7 +80,7 @@ export function DiscountModal({index, onClickBuyBtn}) {
         <div className="mb-6 w-16 h-16">
           <img src={giftImg2} alt="" className="w-16" />
         </div>
-        <div className="text-3xl font-bold mb-8 text-rose-700">15% OFF</div>
+        <div className="text-5xl font-bold mb-8 text-rose-500">15% OFF</div>
         <div
           onClick={clickBuyBtn}
           className="text-2xl font-medium mb-5 w-full flex justify-center items-center h-10 rounded bg-rose-500 text-white"

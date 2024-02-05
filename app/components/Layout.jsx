@@ -371,7 +371,7 @@ function MobileFooter({clickBuyBtn}) {
         </div> */}
         <div
           onClick={clickBtn}
-          className="mobile-footer-right-box flex justify-center items-center flex-1 h-11 bg-rose-500 rounded-sm text-white text-base"
+          className="mobile-footer-right-box flex justify-center items-center flex-1 h-11 bg-rose-500 rounded-sm text-white text-xl"
         >
           Buy now
         </div>
