@@ -253,8 +253,8 @@ export function ProductForm() {
 
   const checkoutFormBtnRef = useRef(null);
   const discountFormBtnRef = useRef(null);
-  const buynowClickNum = useSelector((state) => state.clickNum);
-  const discountCode = useSelector((state) => state.couponCode);
+  const buynowClickNum = useSelector((state) => state.buynowClickNum);
+  const discountCode = useSelector((state) => state.discountCode);
 
   // 处理点击购买按钮行为
   useEffect(() => {
