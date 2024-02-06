@@ -1,15 +1,15 @@
-import {useRef, useEffect} from 'react';
 import {json, defer} from '@shopify/remix-oxygen';
+import {AnalyticsPageType} from '@shopify/hydrogen';
 import {useLoaderData, useActionData, Form} from '@remix-run/react';
+import {getClientIPAddress} from 'remix-utils/get-client-ip-address';
+import {useRef, useEffect} from 'react';
 import {useSelector} from 'react-redux';
 import {redirect} from 'react-router-dom';
-import {v4 as uuidv4} from 'uuid';
-import Cookies from 'js-cookie';
 import {Accordion, AccordionItem} from '@nextui-org/react';
 import {Down, Up, Commodity} from '@icon-park/react';
-
-import {AnalyticsPageType} from '@shopify/hydrogen';
 import invariant from 'tiny-invariant';
+import {v4 as uuidv4} from 'uuid';
+import Cookies from 'js-cookie';
 import {
   ProductGallery,
   Section,
@@ -124,7 +124,6 @@ export const action = async ({request, context}) => {
   const shop = JSON.parse(formData.get('shop'));
   const product = JSON.parse(formData.get('product'));
   const pageInfo = JSON.parse(formData.get('_pageInfo'));
-  const userId = formData.get('_userId');
   if (action === 'applyCheckoutDiscountCode') {
     if (discountCode) {
       await applyCheckoutDiscountCode(
@@ -135,15 +134,15 @@ export const action = async ({request, context}) => {
     }
 
     // 事件统计：开始下单
+    pageInfo.ip = getClientIPAddress(request);
     await sendPageEvent(
       'InitiateCheckout',
       shop,
       product,
       variantId,
       checkoutId,
-      discountCode,
+      discountCode || null,
       pageInfo,
-      userId,
     );
 
     return redirect(checkoutUrl);
@@ -283,10 +282,7 @@ export function ProductForm() {
    */
   const selectedVariant = product.selectedVariant;
   const isOutOfStock = !selectedVariant?.availableForSale;
-
-  const discountFormVals = {};
-  discountFormVals.pageInfo = getPageInfo();
-  discountFormVals.userId = genTmpUserId();
+  const pageInfo = getPageInfo();
 
   return (
     <>
@@ -339,12 +335,7 @@ export function ProductForm() {
                 <input
                   type="hidden"
                   name="_pageInfo"
-                  value={JSON.stringify(discountFormVals.pageInfo)}
-                />
-                <input
-                  type="hidden"
-                  name="_userId"
-                  value={discountFormVals.userId}
+                  value={JSON.stringify(pageInfo)}
                 />
                 <button ref={discountFormBtnRef}></button>
               </Form>
@@ -524,7 +515,6 @@ function sendPageEvent(
   checkoutId = null,
   discountCode = null,
   _pageInfo = null,
-  _userId = null,
 ) {
   let data = {};
   const pageInfo = _pageInfo || getPageInfo();
@@ -532,9 +522,10 @@ function sendPageEvent(
   data.shop = shop.primaryDomain.host;
   data.event = event;
   data.eventId = uuidv4();
-  data.userId = _userId || genTmpUserId();
+  data.userId = pageInfo.userId;
   data.cid = pageInfo.cid;
   data.ua = pageInfo.ua;
+  data.ip = pageInfo.ip;
   data.page = pageInfo.page;
   data.productId = product.id.split('/')[4];
   data.productVariantId = variantId;
@@ -555,32 +546,28 @@ function sendPageEvent(
 }
 
 /**
- * 生成用于统计的临时用户ID
- * NOTE: 前端调用
- */
-function genTmpUserId() {
-  if (typeof window === 'undefined') return '';
-
-  let userId = Cookies.get('_user_id');
-  if (!userId) {
-    userId = uuidv4();
-    Cookies.set('_user_id', userId, {expires: 365});
-  }
-  return userId;
-}
-
-/**
  * 查询 URL 中的 CID 信息，以确定投放的广告平台
  * NOTE: 前端调用
  */
 function getPageInfo() {
   if (typeof window === 'undefined') return {};
 
+  const _genTmpUserId = () => {
+    let userId = Cookies.get('_user_id');
+    if (!userId) {
+      userId = uuidv4();
+      Cookies.set('_user_id', userId, {expires: 365});
+    }
+    return userId;
+  };
+
   const ret = {
     source: 'web',
     cid: null,
     page: window.location.href,
     ua: window.navigator.userAgent,
+    ip: null, // 服务端自动填充
+    userId: _genTmpUserId(),
   };
   const searchParams = new URLSearchParams(window.location.search);
   const ttclid = searchParams.get('ttclid');
