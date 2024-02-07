@@ -110,7 +110,7 @@ export default function App() {
     if (!state)
       return {
         themeColor: 'red',
-        buynowClickNum: 0,
+        discountCardBuyCount: 0,
         discountCode: '',
       };
     switch (action.type) {
@@ -119,7 +119,7 @@ export default function App() {
       case 'CLICK_BUY_BTN':
         return {
           ...state,
-          buynowClickNum: state.buynowClickNum + 1,
+          discountCardBuyCount: state.discountCardBuyCount + 1,
           discountCode: action.discountCode,
         };
       default:

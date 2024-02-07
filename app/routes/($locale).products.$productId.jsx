@@ -156,6 +156,7 @@ export default function Product() {
   const {product, shop} = useLoaderData();
   const {media, title, descriptionHtml, selectedVariant} = product;
 
+  // 切回页面时，自动刷新頁面
   useEffect(() => {
     if (typeof document !== 'undefined') {
       document.addEventListener('visibilitychange', () => {
@@ -263,15 +264,17 @@ export function ProductForm() {
 
   const checkoutFormBtnRef = useRef(null);
   const discountFormBtnRef = useRef(null);
-  const buynowClickNum = useSelector((state) => state.buynowClickNum);
+  const discountCardBuyCount = useSelector(
+    (state) => state.discountCardBuyCount,
+  );
   const discountCode = useSelector((state) => state.discountCode);
 
   // 处理点击购买按钮行为
   useEffect(() => {
-    if (!(buynowClickNum !== 0 && actionData.checkoutUrl)) return;
+    if (!(discountCardBuyCount !== 0 && actionData.checkoutUrl)) return;
     // 模拟提交，应用折扣码
     discountFormBtnRef.current.click();
-  }, [buynowClickNum]);
+  }, [discountCardBuyCount]);
 
   // 首次执行
   useEffect(() => {
