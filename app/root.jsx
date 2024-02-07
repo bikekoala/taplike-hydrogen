@@ -112,6 +112,7 @@ export default function App() {
         themeColor: 'red',
         discountCardBuyCount: 0,
         discountCode: '',
+        clickBackNum: 0
       };
     switch (action.type) {
       case 'CHANGE_COLOR':
@@ -122,6 +123,10 @@ export default function App() {
           discountCardBuyCount: state.discountCardBuyCount + 1,
           discountCode: action.discountCode,
         };
+      case 'CLICK_BACK_BTN':
+        return {
+          ...state, clickBackNum: state.clickBackNum + 1
+        }
       default:
         return state;
     }

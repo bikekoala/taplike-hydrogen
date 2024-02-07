@@ -155,6 +155,9 @@ export default function Product() {
   /** @type {LoaderReturnData} */
   const {product, shop} = useLoaderData();
   const {media, title, descriptionHtml, selectedVariant} = product;
+  const clickBackNum = useSelector(
+    (state) => state.clickBackNum,
+  );
 
   // 切回页面时，自动刷新頁面
   useEffect(() => {
@@ -166,6 +169,11 @@ export default function Product() {
       });
     }
   }, []);
+
+  // 接收到点击BACK事件
+  useEffect(() => {
+    console.log('接收到了点击BACK按钮触发的事件')
+  }, [clickBackNum])
 
   return (
     <>

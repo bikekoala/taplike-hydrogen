@@ -265,8 +265,10 @@ function MobileHeader({
   onDiscountModalChange,
 }) {
   const params = useParams();
+  const dispatch = useDispatch();
 
   const clickBackBtn = (e) => {
+    dispatch({type: 'CLICK_BACK_BTN'})
     e.stopPropagation();
     if (isDiscountModalOpen === true) {
       onDiscountModalChange();
