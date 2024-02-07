@@ -156,6 +156,16 @@ export default function Product() {
   const {product, shop} = useLoaderData();
   const {media, title, descriptionHtml, selectedVariant} = product;
 
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          window.location.reload();
+        }
+      });
+    }
+  }, []);
+
   return (
     <>
       <Section className="px-0 md:px-8 lg:px-12">
