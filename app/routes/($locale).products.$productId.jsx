@@ -272,29 +272,37 @@ export function ProductForm() {
   );
   const discountCode = useSelector((state) => state.discountCode);
 
-  // 处理点击购买按钮行为
+  // 当点击 购买 按钮
   useEffect(() => {
     if (!(discountCardBuyCount !== 0 && actionData.checkoutUrl)) return;
     // 模拟提交，应用折扣码
     discountFormBtnRef.current.click();
   }, [discountCardBuyCount]);
 
-  // 接收到点击BACK事件
+  // 当点击 BACK 按钮
   useEffect(() => {
     if (discountCardBackCount === 0) return;
     // 事件统计：点击返回
     sendPageEvent('_BtnBack', shop, product);
   }, [discountCardBackCount]);
 
+  // 事件统计：浏览页面（等待 checkoutId 创建完成）
+  useEffect(() => {
+    sendPageEvent(
+      'ViewContent',
+      shop,
+      product,
+      actionData.variantId,
+      actionData.checkoutId,
+    );
+  }, [actionData.checkoutId]);
+
   // 首次执行
   useEffect(() => {
-    // 事件统计：浏览页面
-    sendPageEvent('ViewContent', shop, product);
-
     // 模拟提交，延迟自动创建结账数据
     const timeoutId = setTimeout(() => {
       checkoutFormBtnRef.current.click();
-    }, 1000);
+    }, 500);
     return () => clearTimeout(timeoutId);
   }, []);
 
