@@ -155,9 +155,6 @@ export default function Product() {
   /** @type {LoaderReturnData} */
   const {product, shop} = useLoaderData();
   const {media, title, descriptionHtml, selectedVariant} = product;
-  const clickBackNum = useSelector(
-    (state) => state.clickBackNum,
-  );
 
   // 切回页面时，自动刷新頁面
   useEffect(() => {
@@ -169,11 +166,6 @@ export default function Product() {
       });
     }
   }, []);
-
-  // 接收到点击BACK事件
-  useEffect(() => {
-    console.log('接收到了点击BACK按钮触发的事件')
-  }, [clickBackNum])
 
   return (
     <>
@@ -275,6 +267,9 @@ export function ProductForm() {
   const discountCardBuyCount = useSelector(
     (state) => state.discountCardBuyCount,
   );
+  const discountCardBackCount = useSelector(
+    (state) => state.discountCardBackCount,
+  );
   const discountCode = useSelector((state) => state.discountCode);
 
   // 处理点击购买按钮行为
@@ -283,6 +278,13 @@ export function ProductForm() {
     // 模拟提交，应用折扣码
     discountFormBtnRef.current.click();
   }, [discountCardBuyCount]);
+
+  // 接收到点击BACK事件
+  useEffect(() => {
+    if (discountCardBackCount === 0) return;
+    // 事件统计：点击返回
+    sendPageEvent('_BtnBack', shop, product);
+  }, [discountCardBackCount]);
 
   // 首次执行
   useEffect(() => {
