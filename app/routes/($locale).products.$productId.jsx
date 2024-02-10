@@ -157,6 +157,7 @@ export default function Product() {
   const {media, title, descriptionHtml, selectedVariant} = product;
 
   // 切回页面时，自动刷新頁面
+  /*
   useEffect(() => {
     if (typeof document !== 'undefined') {
       document.addEventListener('visibilitychange', () => {
@@ -166,6 +167,7 @@ export default function Product() {
       });
     }
   }, []);
+  */
 
   return (
     <>
