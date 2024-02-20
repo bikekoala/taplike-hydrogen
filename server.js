@@ -102,7 +102,7 @@ export default {
             ' https://monorail-edge.shopifysvc.com https://seller.taplike.com https://tiklike.taplike.com https://r.clarity.ms/collect',
           );
           cspHeader +=
-            "; script-src-elem 'self' 'unsafe-inline' https://www.clarity.ms/tag/l40s1vkdtq https://www.clarity.ms/s/0.7.20/clarity.js http://localhost:3100";
+            "; script-src-elem 'self' 'unsafe-inline' https://www.clarity.ms/tag/l40s1vkdtq https://www.clarity.ms/s/0.7.20/clarity.js https://cdn.shopify.com";
         }
         response.headers.set('Content-Security-Policy', cspHeader);
       }
