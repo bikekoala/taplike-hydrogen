@@ -96,7 +96,7 @@ export default {
           );
           cspHeader = cspHeader.replaceAll(
             " default-src 'self'",
-            " default-src 'self' https://*.clarity.ms",
+            " default-src 'self' https://*.clarity.ms https://*.bing.com",
           );
           cspHeader +=
             "; script-src-elem 'self' 'unsafe-inline' https://www.clarity.ms/tag/l40s1vkdtq https://www.clarity.ms/s/0.7.20/clarity.js http://localhost:3100";
@@ -107,7 +107,7 @@ export default {
           );
           cspHeader = cspHeader.replaceAll(
             " default-src 'self'",
-            " default-src 'self' https://*.clarity.ms",
+            " default-src 'self' https://*.clarity.ms https://*.bing.com",
           );
           cspHeader +=
             "; script-src-elem 'self' 'unsafe-inline' https://www.clarity.ms/tag/l40s1vkdtq https://www.clarity.ms/s/0.7.20/clarity.js https://cdn.shopify.com";
