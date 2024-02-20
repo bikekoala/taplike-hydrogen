@@ -27,6 +27,7 @@ import {useAnalytics} from './hooks/useAnalytics';
 import {legacy_createStore as createStore} from 'redux';
 import {Provider} from 'react-redux';
 import '@icon-park/react/styles/index.css';
+import { useEffect } from 'react';
 
 // This is important to avoid re-fetching root queries on sub-navigations
 /**
@@ -134,6 +135,14 @@ export default function App() {
   };
 
   const store = createStore(storeReducer);
+
+  useEffect(() => {
+    (function(c,l,a,r,i,t,y){
+      c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+      t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;t.nonce=nonce;
+      y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "l40s1vkdtq");
+  },[])
 
   return (
     <html lang={locale.language}>
