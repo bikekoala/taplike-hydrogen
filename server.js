@@ -92,14 +92,22 @@ export default {
         if (process.env.NODE_ENV === 'development') {
           cspHeader = cspHeader.replaceAll(
             ' ws://127.0.0.1:*',
-            ' ws://127.0.0.1:* 10.20.1.10:* https://seller.taplike.com https://r.clarity.ms/collect',
+            ' ws://127.0.0.1:* 10.20.1.10:* https://seller.taplike.com https://*.clarity.ms',
+          );
+          cspHeader = cspHeader.replaceAll(
+            " default-src 'self'",
+            " default-src 'self' https://*.clarity.ms",
           );
           cspHeader +=
             "; script-src-elem 'self' 'unsafe-inline' https://www.clarity.ms/tag/l40s1vkdtq https://www.clarity.ms/s/0.7.20/clarity.js http://localhost:3100";
         } else {
           cspHeader = cspHeader.replaceAll(
             ' https://monorail-edge.shopifysvc.com',
-            ' https://monorail-edge.shopifysvc.com https://seller.taplike.com https://tiklike.taplike.com https://r.clarity.ms/collect https://t.clarity.ms/collect',
+            ' https://monorail-edge.shopifysvc.com https://seller.taplike.com https://tiklike.taplike.com https://*.clarity.ms',
+          );
+          cspHeader = cspHeader.replaceAll(
+            " default-src 'self'",
+            " default-src 'self' https://*.clarity.ms",
           );
           cspHeader +=
             "; script-src-elem 'self' 'unsafe-inline' https://www.clarity.ms/tag/l40s1vkdtq https://www.clarity.ms/s/0.7.20/clarity.js https://cdn.shopify.com";
