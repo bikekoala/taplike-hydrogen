@@ -277,6 +277,8 @@ export function ProductForm() {
   // 当点击 购买 按钮
   useEffect(() => {
     if (!(discountCardBuyCount !== 0 && actionData.checkoutUrl)) return;
+    // 事件统计：点击购买
+    sendPageEvent('_BtnBuy', shop, product);
     // 模拟提交，应用折扣码
     discountFormBtnRef.current.click();
   }, [discountCardBuyCount]);
