@@ -139,6 +139,7 @@ export const action = async ({request, context}) => {
       'InitiateCheckout',
       shop,
       product,
+      null,
       variantId,
       checkoutId,
       discountCode || null,
@@ -278,7 +279,8 @@ export function ProductForm() {
   useEffect(() => {
     if (!(discountCardBuyCount !== 0 && actionData.checkoutUrl)) return;
     // 事件统计：点击购买
-    sendPageEvent('_BtnBuy', shop, product);
+    const cardIndex = Math.min(3, discountCardBuyCount);
+    sendPageEvent('_BtnDiscountCardBuy', shop, product, {cardIndex});
     // 模拟提交，应用折扣码
     discountFormBtnRef.current.click();
   }, [discountCardBuyCount]);
@@ -287,7 +289,8 @@ export function ProductForm() {
   useEffect(() => {
     if (discountCardBackCount === 0) return;
     // 事件统计：点击返回
-    sendPageEvent('_BtnBack', shop, product);
+    const cardIndex = Math.min(3, discountCardBuyCount);
+    sendPageEvent('_BtnBack', shop, product, {cardIndex});
   }, [discountCardBackCount]);
 
   // 事件统计：浏览页面（等待 checkoutId 创建完成）
@@ -296,6 +299,7 @@ export function ProductForm() {
       'ViewContent',
       shop,
       product,
+      null,
       actionData.variantId,
       actionData.checkoutId,
     );
@@ -546,6 +550,7 @@ function sendPageEvent(
   event,
   shop,
   product,
+  params = null,
   variantId = null,
   checkoutId = null,
   discountCode = null,
@@ -557,6 +562,7 @@ function sendPageEvent(
   data.shop = shop.primaryDomain.host;
   data.event = event;
   data.eventId = uuidv4();
+  data.params = params;
   data.userId = pageInfo.userId;
   data.cid = pageInfo.cid;
   data.ua = pageInfo.ua;
