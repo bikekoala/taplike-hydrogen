@@ -279,8 +279,9 @@ export function ProductForm() {
   useEffect(() => {
     if (!(discountCardBuyCount !== 0 && actionData.checkoutUrl)) return;
     // 事件统计：点击购买
-    const cardIndex = Math.min(3, discountCardBuyCount);
-    sendPageEvent('_BtnDiscountCardBuy', shop, product, {cardIndex});
+    sendPageEvent('_BtnDiscountCardBuy', shop, product, {
+      count: discountCardBuyCount,
+    });
     // 模拟提交，应用折扣码
     discountFormBtnRef.current.click();
   }, [discountCardBuyCount]);
@@ -289,7 +290,7 @@ export function ProductForm() {
   useEffect(() => {
     if (discountCardBackCount === 0) return;
     // 事件统计：点击返回
-    const cardIndex = Math.min(3, discountCardBuyCount);
+    const cardIndex = Math.min(discountCardBackCount, 3);
     sendPageEvent('_BtnBack', shop, product, {cardIndex});
   }, [discountCardBackCount]);
 
