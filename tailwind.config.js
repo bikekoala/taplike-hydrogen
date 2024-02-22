@@ -19,6 +19,12 @@ export default {
         notice: 'rgb(var(--color-accent) / <alpha-value>)',
         shopPay: 'rgb(var(--color-shop-pay) / <alpha-value>)',
       },
+      textUnderlineOffset: {
+        1: '1px',
+        2: '2px',
+        3: '3px',
+        4: '4px',
+      },
       screens: {
         sm: '32em', // 1rem=16px
         md: '48em',

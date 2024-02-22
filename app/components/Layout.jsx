@@ -63,14 +63,14 @@ export function Layout({children, layout}) {
       // 没有折扣码
       discountCode = '';
     } else if (index === 0) {
-      // 第一个弹窗5%的折扣
-      discountCode = 'ABC5';
+      // 第一个弹窗$2的折扣
+      discountCode = 'USD2A';
     } else if (index === 1) {
-      // 第二个弹窗15%的折扣
-      discountCode = 'DD15';
+      // 第二个弹窗$3的折扣
+      discountCode = 'USD3B';
     } else {
       // 第三个弹窗20%的折扣
-      discountCode = 'TT20';
+      discountCode = 'USD5Z';
     }
 
     dispatch({type: 'CLICK_BUY_BTN', discountCode});
@@ -339,10 +339,8 @@ function MobileHeader({
             onClick={(e) => clickBackBtn(e)}
           >
             <LeftC theme="multi-color" size="28" fill={['#ffffff' ,'#ffffff' ,'#000000' ,'#ffffff']} />
-            {/* <LeftC theme="two-tone" size="28" fill={['#f43f5e' ,'#f43f5e' ,'#ffffff' ,'#f43f5e']} /> */}
-            {/* <LeftC theme="multi-color" size="24" fill={['#f43f5e' ,'#f43f5e' ,'#ffffff' ,'#f43f5e']}/> */}
-            <span className="text-xl ml-1">Back</span>
-            {/* <span className="text-2xl ml-1">Back</span> */}
+            <span className="text-xl ml-1 text-center">Back</span>
+
           </div>
           <div onClick={(e) => clickBackBtn(e)}>
             <Close theme="outline" size="24" fill="#ffffff"/>
