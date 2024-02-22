@@ -4,7 +4,7 @@ import {Disclosure} from '@headlessui/react';
 import {Suspense, useEffect, useMemo, useState} from 'react';
 import {useLocation} from 'react-use';
 import {CartForm} from '@shopify/hydrogen';
-import {Back, LeftC, Application, HeadsetOne} from '@icon-park/react';
+import {Back, LeftC, Application, HeadsetOne, Close} from '@icon-park/react';
 import {useSelector, useDispatch} from 'react-redux';
 import {
   Modal,
@@ -290,7 +290,7 @@ function MobileHeader({
         isHome
           ? 'bg-primary/80 dark:bg-contrast/60 text-contrast dark:text-primary shadow-darkHeader'
           : 'bg-primary/80 dark:bg-contrast/60 text-contrast dark:text-primary shadow-darkHeader'
-      } flex items-center h-14 fixed backdrop-blur-lg z-999 top-0 justify-between w-full md:w-96 leading-none gap-4 px-2`}
+      } flex items-center h-14 fixed backdrop-blur-lg z-999 top-0 justify-between w-full md:w-96 leading-none gap-4 px-4`}
       // } flex items-center h-14 fixed lg:hidden backdrop-blur-lg z-999 top-0 justify-between w-full leading-none gap-4 px-2 md:px-8`}
     >
       {/* <div className="flex items-center justify-start w-full gap-4">
@@ -330,24 +330,32 @@ function MobileHeader({
         to="/"
       > */}
       <Heading
-        className="font-bold text-center leading-none"
+        className="font-bold text-center leading-none w-full"
         as={isHome ? 'h1' : 'h2'}
       >
-        <div
-          className="flex flex-row justify-center items-center texl-6xl"
-          onClick={(e) => clickBackBtn(e)}
-        >
-          <LeftC theme="two-tone" size="28" fill={['#333', '#ffffff']} />
-          <span className="text-2xl">BACK</span>
+        <div className='w-full flex items-center justify-between'>
+          <div
+            className="flex flex-row justify-center items-center texl-6xl"
+            onClick={(e) => clickBackBtn(e)}
+          >
+            <LeftC theme="multi-color" size="28" fill={['#ffffff' ,'#ffffff' ,'#000000' ,'#ffffff']} />
+            {/* <LeftC theme="two-tone" size="28" fill={['#f43f5e' ,'#f43f5e' ,'#ffffff' ,'#f43f5e']} /> */}
+            {/* <LeftC theme="multi-color" size="24" fill={['#f43f5e' ,'#f43f5e' ,'#ffffff' ,'#f43f5e']}/> */}
+            <span className="text-xl ml-1">Back</span>
+            {/* <span className="text-2xl ml-1">Back</span> */}
+          </div>
+          <div onClick={(e) => clickBackBtn(e)}>
+            <Close theme="outline" size="24" fill="#ffffff"/>
+          </div>
         </div>
         {/* {title} */}
       </Heading>
       {/* </Link> */}
 
-      <div className="flex items-center justify-end w-full gap-4">
-        {/* <AccountLink className="relative flex items-center justify-center w-8 h-8" /> */}
-        {/* <CartCount isHome={isHome} openCart={openCart} /> */}
-      </div>
+      {/* <div className="flex items-center justify-end w-full gap-4">
+        <AccountLink className="relative flex items-center justify-center w-8 h-8" /> 
+        <CartCount isHome={isHome} openCart={openCart} />
+      </div> */}
     </header>
   );
 }
