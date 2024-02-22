@@ -78,49 +78,52 @@ export function Layout({children, layout}) {
 
   return (
     <>
-      <div className="flex flex-col h-screen">
-        {/* <div className="flex flex-col min-h-screen"> */}
-        <div className="">
-          <a href="#mainContent" className="sr-only">
-            Skip to content
-          </a>
-        </div>
-        {headerMenu && layout?.shop.name && (
-          <Header
-            title={layout.shop.name}
-            menu={headerMenu}
-            onOpen={onOpen}
-            onDiscountModalChange={onDiscountModalChange}
-            isDiscountModalOpen={isOpen}
-          />
-        )}
-        <main role="main" id="mainContent" className="flex-grow">
-          {children}
-        </main>
-        {isHome == false && <MobileFooter clickBuyBtn={onClickMobileBuyBtn} />}
-      </div>
-      {/* {footerMenu && <Footer menu={footerMenu} />} */}
+      <div className="flex flex-col h-fit justify-center items-center w-screen">
 
-      {/* 弹窗遮罩 */}
-      <Modal
-        // isOpen={true}
-        size="xs"
-        isOpen={isOpen}
-        onOpenChange={onDiscountModalChange}
-        placement={'center'}
-        backdrop={'opaque'}
-        className="z-50"
-      >
-        <ModalContent>
-          <ModalHeader className="flex flex-col gap-1"></ModalHeader>
-          <ModalBody>
-            <DiscountModal
-              index={discountModalIndex}
-              onClickBuyBtn={onClickMobileBuyBtn}
-            ></DiscountModal>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+        <div className="flex flex-col h-fit w-full md:w-96 md:justify-center md:items-center relative">
+
+            <div className="">
+              <a href="#mainContent" className="sr-only">
+                Skip to content
+              </a>
+            </div>
+            {headerMenu && layout?.shop.name && (
+              <Header
+                title={layout.shop.name}
+                menu={headerMenu}
+                onOpen={onOpen}
+                onDiscountModalChange={onDiscountModalChange}
+                isDiscountModalOpen={isOpen}
+              />
+            )}
+            <main role="main" id="mainContent" className="flex-grow">
+              {children}
+            </main>
+            {isHome == false && <MobileFooter clickBuyBtn={onClickMobileBuyBtn} />}
+          </div>
+
+          {/* 弹窗遮罩 */}
+          <Modal
+            size="xs"
+            isOpen={isOpen}
+            onOpenChange={onDiscountModalChange}
+            placement={'center'}
+            backdrop={'opaque'}
+            className="z-50"
+          >
+            <ModalContent>
+              <ModalHeader className="flex flex-col gap-1"></ModalHeader>
+              <ModalBody>
+                <DiscountModal
+                  index={discountModalIndex}
+                  onClickBuyBtn={onClickMobileBuyBtn}
+                ></DiscountModal>
+              </ModalBody>
+            </ModalContent>
+          </Modal>
+
+        </div>
+
     </>
   );
 }
@@ -163,12 +166,12 @@ function Header({
       {menu && (
         <MenuDrawer isOpen={isMenuOpen} onClose={closeMenu} menu={menu} />
       )}
-      <DesktopHeader
+      {/* <DesktopHeader
         isHome={isHome}
         title={title}
         menu={menu}
         openCart={openCart}
-      />
+      /> */}
       <MobileHeader
         isHome={true}
         // isHome={isHome}
@@ -287,8 +290,8 @@ function MobileHeader({
         isHome
           ? 'bg-primary/80 dark:bg-contrast/60 text-contrast dark:text-primary shadow-darkHeader'
           : 'bg-primary/80 dark:bg-contrast/60 text-contrast dark:text-primary shadow-darkHeader'
-      } flex items-center h-14 fixed lg:hidden backdrop-blur-lg z-999 top-0 justify-between w-full leading-none gap-4 px-2 md:px-8`}
-      // } flex lg:hidden items-center h-14 sticky backdrop-blur-lg z-40 top-0 justify-between w-full leading-none gap-4 px-4 md:px-8`}
+      } flex items-center h-14 fixed backdrop-blur-lg z-999 top-0 justify-between w-full md:w-96 leading-none gap-4 px-2`}
+      // } flex items-center h-14 fixed lg:hidden backdrop-blur-lg z-999 top-0 justify-between w-full leading-none gap-4 px-2 md:px-8`}
     >
       {/* <div className="flex items-center justify-start w-full gap-4">
         <button
@@ -357,23 +360,15 @@ function MobileFooter({clickBuyBtn}) {
     clickBuyBtn();
   };
   return (
-    <div className="fixed inset-x-0 bottom-0 bg-white flex flex-col justify-center items-center text-xl font-bold">
-      <div className="divide-line w-screen h-px bg-gray-200">
+    <div className="fixed w-full md:w-96 bottom-0 bg-white flex flex-col justify-center border-white items-center text-xl font-bold">
+      {/* 分割线 */}
+      <div className="divide-line w-screen md:w-96 h-px bg-gray-200">
         <div className="h-px bg-gray-200"></div>
       </div>
-      <div className="flex flex-row w-full px-4 justify-between items-center h-16">
-        {/* <div className="mobile-footer-left-box flex flex-row justify-center items-center mr-5">
-          <Application
-            theme="outline"
-            size="20"
-            fill="#4a4a4a"
-            className="mr-3"
-          />
-          <HeadsetOne theme="outline" size="20" fill="#4a4a4a" />
-        </div> */}
+      <div className="flex flex-row w-full px-4 justify-between items-center h-16 bg-white border-white">
         <div
           onClick={clickBtn}
-          className="mobile-footer-right-box flex justify-center items-center flex-1 h-11 bg-rose-500 rounded-sm text-white text-xl"
+          className="mobile-footer-right-box flex justify-center items-center flex-1 h-11 bg-rose-500 border-white rounded-sm text-white text-xl"
         >
           Buy now
         </div>

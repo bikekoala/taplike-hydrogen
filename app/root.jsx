@@ -110,14 +110,11 @@ export default function App() {
   const storeReducer = (state, action) => {
     if (!state)
       return {
-        themeColor: 'red',
         discountCardBuyCount: 0,
         discountCardBackCount: 0,
         discountCode: '',
       };
     switch (action.type) {
-      case 'CHANGE_COLOR':
-        return {...state, themeColor: action.themeColor};
       case 'CLICK_BUY_BTN':
         return {
           ...state,
