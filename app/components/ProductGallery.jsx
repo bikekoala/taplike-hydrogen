@@ -14,7 +14,7 @@ export function ProductGallery({media, className}) {
 
   return (
     <div
-      className={`swimlane w-full hiddenScroll p-0 gap-0 ${className}`}
+      className={`swimlane w-full aspect-square hiddenScroll p-0 gap-0 ${className}`}
       // className={`swimlane md:grid-flow-row w-full hiddenScroll md:p-0 md:overflow-x-auto md:grid-cols-2 p-0 gap-0 ${className}`}
     >
       {media.map((med, i) => {
