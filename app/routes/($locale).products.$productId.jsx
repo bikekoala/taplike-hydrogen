@@ -19,8 +19,21 @@ import {
 import {seoPayload} from '~/lib/seo.server';
 import {routeHeaders} from '~/data/cache';
 import {MEDIA_FRAGMENT} from '~/data/fragments';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import SwiperCore, { Pagination, Autoplay } from 'swiper';
+import swiperCss from 'swiper/swiper-bundle.css'
+import swiperCustomCss from '~/styles/swiper.css'
 
 export const headers = routeHeaders;
+
+export function links() {
+  return [
+    { rel: "stylesheet", href: swiperCss },
+    { rel: "stylesheet", href: swiperCustomCss },
+  ];
+}
+
+SwiperCore.use([Pagination, Autoplay]);
 
 /**
  * @param {LoaderFunctionArgs}
@@ -175,10 +188,26 @@ export default function Product() {
       <Section className="px-0">
         <div className="grid items-start w-full">
           <div className="h-14 w-full relative"></div>
-          <ProductGallery
-            media={media.nodes}
-            className="w-full"
-          />
+
+          {/* 轮播图区域 */}
+          <div className='w-screen md:w-96 aspect-square bg-white'>
+            <Swiper
+              loop
+              autoplay={{delay: 3000}}
+              slidesPerView={1}
+              pagination={{ clickable: true }}
+            >
+              {media.nodes.map((item, index) => {
+                return (
+                  <SwiperSlide key={index}>
+                    <div>
+                      <img src={item.image.url}></img>  
+                    </div>
+                  </SwiperSlide>
+                )
+              })}
+            </Swiper>
+          </div>
 
           <div className="sticky hiddenScroll">
             <section className="flex flex-col w-full max-w-xl py-0 ">
