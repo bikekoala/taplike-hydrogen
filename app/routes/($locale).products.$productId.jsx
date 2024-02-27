@@ -193,7 +193,10 @@ export default function Product() {
           <div className='w-screen md:w-96 aspect-square bg-white'>
             <Swiper
               loop
-              autoplay={{delay: 3000}}
+              autoplay={{
+                delay: 3000,
+                disableOnInteraction: false
+              }}
               slidesPerView={1}
               pagination={{ clickable: true }}
             >
