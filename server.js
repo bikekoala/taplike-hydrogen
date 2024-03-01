@@ -99,7 +99,7 @@ export default {
             " default-src 'self' https://*.clarity.ms https://*.bing.com",
           );
           cspHeader +=
-            "; script-src-elem 'self' 'unsafe-inline' https://www.clarity.ms/tag/l40s1vkdtq https://www.clarity.ms/s/0.7.20/clarity.js http://localhost:3100";
+            "; script-src-elem 'self' 'unsafe-inline' https://*.clarity.ms http://localhost:3100";
           cspHeader += "; font-src 'self' data:;";
         } else {
           cspHeader = cspHeader.replaceAll(
@@ -111,7 +111,7 @@ export default {
             " default-src 'self' https://*.clarity.ms https://*.bing.com",
           );
           cspHeader +=
-            "; script-src-elem 'self' 'unsafe-inline' https://www.clarity.ms/tag/l40s1vkdtq https://www.clarity.ms/s/0.7.20/clarity.js https://cdn.shopify.com";
+            "; script-src-elem 'self' 'unsafe-inline' https://*.clarity.ms https://cdn.shopify.com";
           cspHeader += "; font-src 'self' data:;";
         }
         response.headers.set('Content-Security-Policy', cspHeader);

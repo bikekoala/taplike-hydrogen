@@ -55,45 +55,37 @@ export function ProductCard({
   const pidNum = product.id.split('Product/')[1]
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col w-full gap-2 relative">
+
+      {/* 商品列表卡片 */}
       <Link
         onClick={onClick}
         to={`/products/${pidNum}`}
         prefetch="intent"
       >
-        <div className={clsx('grid gap-4', className)}>
-          <div className="card-image aspect-[4/5] bg-primary/5">
+        {/* 商品列表的图片 */}
+        <div className={clsx('grid', className)}>
+          <div className="w-full aspect-square bg-primary/5">
             {image && (
-              <Image
-                className="object-cover w-full fadeIn"
-                sizes="(min-width: 64em) 25vw, (min-width: 48em) 30vw, 45vw"
-                aspectRatio="4/5"
-                data={image}
-                alt={image.altText || `Picture of ${product.title}`}
-                loading={loading}
-              />
+              <div className='w-full aspect-square'>
+                <img src={image.url} className=''></img>
+              </div>
             )}
-            <Text
-              as="label"
-              size="fine"
-              className="absolute top-0 right-0 m-4 text-right text-notice"
-            >
-              {cardLabel}
-            </Text>
           </div>
-          <div className="grid gap-1">
+          {/* 商品列表的名称和价格 */}
+          <div className="grid gap-1 mx-4 my-4">
             <Text
-              className="w-full overflow-hidden whitespace-nowrap text-ellipsis "
+              className="w-full overflow-hidden whitespace-nowrap text-wrap line-clamp-3 font-bold text-sm font-medium h-16"
               as="h3"
             >
               {product.title}
             </Text>
             <div className="flex gap-4">
-              <Text className="flex gap-4">
-                <Money withoutTrailingZeros data={price} />
+              <Text className="flex gap-2">
+                <Money withoutTrailingZeros data={price} className='text-xl font-medium' />
                 {isDiscounted(price, compareAtPrice) && (
                   <CompareAtPrice
-                    className={'opacity-50'}
+                    className={'opacity-50 text-sm line-through flex items-center'}
                     data={compareAtPrice}
                   />
                 )}
@@ -102,6 +94,8 @@ export function ProductCard({
           </div>
         </div>
       </Link>
+
+
       {quickAdd && firstVariant.availableForSale && (
         <AddToCartButton
           lines={[
@@ -122,6 +116,8 @@ export function ProductCard({
           </Text>
         </AddToCartButton>
       )}
+
+
       {quickAdd && !firstVariant.availableForSale && (
         <Button variant="secondary" className="mt-2" disabled>
           <Text as="span" className="flex items-center justify-center gap-2">
@@ -143,7 +139,7 @@ function CompareAtPrice({data, className}) {
   const {currencyNarrowSymbol, withoutTrailingZerosAndCurrency} =
     useMoney(data);
 
-  const styles = clsx('strike', className);
+  const styles = clsx(className);
 
   return (
     <span className={styles}>

@@ -128,7 +128,7 @@ export function Section({
 }) {
   const paddings = {
     x: 'px-6 md:px-8 lg:px-12',
-    y: 'py-6 md:py-8 lg:py-12',
+    y: '',
     swimlane: 'pt-4 md:pt-8 lg:pt-12 md:pb-4 lg:pb-8',
     all: 'p-6',
   };

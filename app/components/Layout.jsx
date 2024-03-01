@@ -80,14 +80,14 @@ export function Layout({children, layout}) {
     <>
       <div className="flex flex-col h-fit justify-center items-center w-screen">
 
-        <div className="flex flex-col h-fit w-full md:w-96 md:justify-center md:items-center relative">
+        <div className="flex flex-col h-fit w-full md:w-96 md:items-center relative bg-white">
 
             <div className="">
               <a href="#mainContent" className="sr-only">
                 Skip to content
               </a>
             </div>
-            {headerMenu && layout?.shop.name && (
+            {headerMenu && layout?.shop.name && isHome === false && (
               <Header
                 title={layout.shop.name}
                 menu={headerMenu}
@@ -166,15 +166,7 @@ function Header({
       {menu && (
         <MenuDrawer isOpen={isMenuOpen} onClose={closeMenu} menu={menu} />
       )}
-      {/* <DesktopHeader
-        isHome={isHome}
-        title={title}
-        menu={menu}
-        openCart={openCart}
-      /> */}
       <MobileHeader
-        isHome={true}
-        // isHome={isHome}
         title={title}
         openCart={openCart}
         openMenu={openMenu}
@@ -286,49 +278,8 @@ function MobileHeader({
   return (
     <header
       role="banner"
-      className={`${
-        isHome
-          ? 'bg-primary/80 dark:bg-contrast/60 text-contrast dark:text-primary shadow-darkHeader'
-          : 'bg-primary/80 dark:bg-contrast/60 text-contrast dark:text-primary shadow-darkHeader'
-      } flex items-center h-14 fixed backdrop-blur-lg z-999 top-0 justify-between w-full md:w-96 leading-none gap-4 px-4`}
-      // } flex items-center h-14 fixed lg:hidden backdrop-blur-lg z-999 top-0 justify-between w-full leading-none gap-4 px-2 md:px-8`}
+      className={'bg-primary/80 dark:bg-contrast/60 text-contrast dark:text-primary shadow-darkHeader flex items-center h-14 fixed backdrop-blur-lg z-999 top-0 justify-between w-full md:w-96 leading-none gap-4 px-4'}
     >
-      {/* <div className="flex items-center justify-start w-full gap-4">
-        <button
-          onClick={openMenu}
-          className="relative flex items-center justify-center w-8 h-8"
-        >
-          <IconMenu />
-        </button>
-        <Form
-          method="get"
-          action={params.locale ? `/${params.locale}/search` : '/search'}
-          className="items-center gap-2 sm:flex"
-        >
-          <button
-            type="submit"
-            className="relative flex items-center justify-center w-8 h-8"
-          >
-            <IconSearch />
-          </button>
-          <Input
-            className={
-              isHome
-                ? 'focus:border-contrast/20 dark:focus:border-primary/20'
-                : 'focus:border-primary/20'
-            }
-            type="search"
-            variant="minisearch"
-            placeholder="Search"
-            name="q"
-          />
-        </Form>
-      </div> */}
-
-      {/* <Link
-        className="flex items-center self-stretch leading-[3rem] md:leading-[4rem] justify-center flex-grow h-full"
-        to="/"
-      > */}
       <Heading
         className="font-bold text-center leading-none w-full"
         as={isHome ? 'h1' : 'h2'}
@@ -340,20 +291,12 @@ function MobileHeader({
           >
             <LeftC theme="multi-color" size="28" fill={['#ffffff' ,'#ffffff' ,'#000000' ,'#ffffff']} />
             <span className="text-xl ml-1 text-center">Back</span>
-
           </div>
           <div onClick={(e) => clickBackBtn(e)}>
             <Close theme="outline" size="24" fill="#ffffff"/>
           </div>
         </div>
-        {/* {title} */}
       </Heading>
-      {/* </Link> */}
-
-      {/* <div className="flex items-center justify-end w-full gap-4">
-        <AccountLink className="relative flex items-center justify-center w-8 h-8" /> 
-        <CartCount isHome={isHome} openCart={openCart} />
-      </div> */}
     </header>
   );
 }

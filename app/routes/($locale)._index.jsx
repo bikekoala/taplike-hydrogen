@@ -78,6 +78,7 @@ export async function loader({params, context}) {
   });
 }
 
+// 首页-商品列表页
 export default function Homepage() {
   /** @type {LoaderReturnData} */
   const {
@@ -103,11 +104,15 @@ export default function Homepage() {
             {({products}) => {
               if (!products?.nodes) return <></>;
               return (
-                <ProductSwimlane
-                  products={products}
-                  title="Featured Products"
-                  count={4}
-                />
+                <div className='relative'>
+                  <div className='h-14 bg-primary/80 text-white px-4 flex items-center text-xl font-bold sticky top-0 z-50'>
+                    Featured Products
+                  </div>
+                  <ProductSwimlane
+                    products={products}
+                    count={4}
+                  />
+                </div>
               );
             }}
           </Await>
@@ -125,7 +130,7 @@ export default function Homepage() {
         </Suspense>
       )}
 
-      {featuredCollections && (
+      {/* {featuredCollections && (
         <Suspense>
           <Await resolve={featuredCollections}>
             {({collections}) => {
@@ -139,7 +144,7 @@ export default function Homepage() {
             }}
           </Await>
         </Suspense>
-      )}
+      )} */}
 
       {tertiaryHero && (
         <Suspense fallback={<Hero {...skeletons[2]} />}>
