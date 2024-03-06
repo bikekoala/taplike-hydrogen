@@ -23,4 +23,5 @@ export {FeaturedProducts} from './FeaturedProducts';
 export {AddToCartButton} from './AddToCartButton';
 export {ProductPolicy} from './ProductPolicy';
 export {ProductFooter} from './ProductFooter';
+export {MobileHeader} from './MobileHeader';
 export * from './Icon';
