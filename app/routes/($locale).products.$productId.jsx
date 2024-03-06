@@ -2,19 +2,28 @@ import {json, defer} from '@shopify/remix-oxygen';
 import {AnalyticsPageType} from '@shopify/hydrogen';
 import {useLoaderData, useActionData, Form} from '@remix-run/react';
 import {getClientIPAddress} from 'remix-utils/get-client-ip-address';
-import {useRef, useEffect} from 'react';
-import {useSelector} from 'react-redux';
+import {useRef, useEffect, useState} from 'react';
+import {useSelector, useDispatch} from 'react-redux';
 import {redirect} from 'react-router-dom';
-import {Accordion, AccordionItem} from '@nextui-org/react';
+import {
+  Accordion, 
+  AccordionItem,   
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  useDisclosure,
+} from '@nextui-org/react';
 import {Down, Up, Commodity} from '@icon-park/react';
 import invariant from 'tiny-invariant';
 import {v4 as uuidv4} from 'uuid';
 import Cookies from 'js-cookie';
 import {
-  ProductGallery,
   Section,
   ProductPolicy,
   ProductFooter,
+  MobileHeader,
+  DiscountModal
 } from '~/components';
 import {seoPayload} from '~/lib/seo.server';
 import {routeHeaders} from '~/data/cache';
@@ -169,6 +178,33 @@ export default function Product() {
   /** @type {LoaderReturnData} */
   const {product, shop} = useLoaderData();
   const {media, title, descriptionHtml, selectedVariant} = product;
+  const {isOpen, onOpen, onOpenChange} = useDisclosure();
+  const [discountModalIndex, setDiscountModalIndex] = useState(0);
+  const dispatch = useDispatch();
+  
+  const onDiscountModalChange = () => {
+    onOpenChange();
+    setDiscountModalIndex((e) => e + 1);
+  };
+
+  const onClickMobileBuyBtn = (index) => {
+    let discountCode = '';
+    if (index === undefined) {
+      // 没有折扣码
+      discountCode = '';
+    } else if (index === 0) {
+      // 第一个弹窗$2的折扣
+      discountCode = 'USD2A';
+    } else if (index === 1) {
+      // 第二个弹窗$3的折扣
+      discountCode = 'USD3B';
+    } else {
+      // 第三个弹窗20%的折扣
+      discountCode = 'USD5Z';
+    }
+
+    dispatch({type: 'CLICK_BUY_BTN', discountCode});
+  };
 
   // 切回页面时，自动刷新頁面
   /*
@@ -187,6 +223,13 @@ export default function Product() {
     <>
       <Section className="px-0">
         <div className="grid items-start w-full">
+
+          {/* 顶部返回栏 */}
+          <MobileHeader
+            onOpen={onOpen}
+            onDiscountModalChange={onDiscountModalChange}
+            isDiscountModalOpen={isOpen}
+          />
           <div className="h-14 w-full relative"></div>
 
           {/* 轮播图区域 */}
@@ -212,6 +255,7 @@ export default function Product() {
             </Swiper>
           </div>
 
+          {/* 商品内容区域 */}
           <div className="sticky hiddenScroll">
             <section className="flex flex-col w-full max-w-xl py-0 ">
               {/* 商品标题区域 */}
@@ -281,9 +325,56 @@ export default function Product() {
               <ProductFooter shopname={shop.name}></ProductFooter>
             </section>
           </div>
+
+          {/* 底部buy now按钮 */}
+          <MobileFooter clickBuyBtn={onClickMobileBuyBtn} />
+
+          {/* 折扣弹窗组件 */}
+          <Modal
+            size="xs"
+            isOpen={isOpen}
+            onOpenChange={onDiscountModalChange}
+            placement={'center'}
+            backdrop={'opaque'}
+            className="z-50"
+          >
+            <ModalContent>
+              <ModalHeader className="flex flex-col gap-1"></ModalHeader>
+              <ModalBody>
+                <DiscountModal
+                  index={discountModalIndex}
+                  onClickBuyBtn={onClickMobileBuyBtn}
+                ></DiscountModal>
+              </ModalBody>
+            </ModalContent>
+          </Modal>
+
         </div>
       </Section>
     </>
+  );
+}
+
+// 底部购买buy now按钮
+function MobileFooter({clickBuyBtn}) {
+  const clickBtn = (e) => {
+    clickBuyBtn();
+  };
+  return (
+    <div className="fixed w-full md:w-96 bottom-0 bg-white flex flex-col justify-center border-white items-center text-xl font-bold">
+      {/* 分割线 */}
+      <div className="divide-line w-screen md:w-96 h-px bg-gray-200">
+        <div className="h-px bg-gray-200"></div>
+      </div>
+      <div className="flex flex-row w-full px-4 justify-between items-center h-16 bg-white border-white">
+        <div
+          onClick={clickBtn}
+          className="mobile-footer-right-box flex justify-center items-center flex-1 h-11 bg-rose-500 border-white rounded-sm text-white text-xl"
+        >
+          Buy now
+        </div>
+      </div>
+    </div>
   );
 }
 

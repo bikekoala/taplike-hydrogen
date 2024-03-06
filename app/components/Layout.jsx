@@ -4,15 +4,7 @@ import {Disclosure} from '@headlessui/react';
 import {Suspense, useEffect, useMemo, useState} from 'react';
 import {useLocation} from 'react-use';
 import {CartForm} from '@shopify/hydrogen';
-import {Back, LeftC, Application, HeadsetOne, Close} from '@icon-park/react';
 import {useSelector, useDispatch} from 'react-redux';
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  useDisclosure,
-} from '@nextui-org/react';
 import {
   Drawer,
   useDrawer,
@@ -23,14 +15,12 @@ import {
   IconBag,
   IconSearch,
   Heading,
-  IconMenu,
   IconCaret,
   Section,
   CountrySelector,
   Cart,
   CartLoading,
   Link,
-  DiscountModal,
 } from '~/components';
 import {useIsHomePath} from '~/lib/utils';
 import {useIsHydrated} from '~/hooks/useIsHydrated';
@@ -42,7 +32,6 @@ import {useRootLoaderData} from '~/root';
  */
 export function Layout({children, layout}) {
   const {headerMenu, footerMenu} = layout || {};
-  const {isOpen, onOpen, onOpenChange} = useDisclosure();
   const isHome = useIsHomePath();
   const [discountModalIndex, setDiscountModalIndex] = useState(0);
   const {pathname} = useLocation();
@@ -52,29 +41,6 @@ export function Layout({children, layout}) {
     setDiscountModalIndex(0);
   }, [pathname]);
 
-  const onDiscountModalChange = () => {
-    onOpenChange();
-    setDiscountModalIndex((e) => e + 1);
-  };
-
-  const onClickMobileBuyBtn = (index) => {
-    let discountCode = '';
-    if (index === undefined) {
-      // 没有折扣码
-      discountCode = '';
-    } else if (index === 0) {
-      // 第一个弹窗$2的折扣
-      discountCode = 'USD2A';
-    } else if (index === 1) {
-      // 第二个弹窗$3的折扣
-      discountCode = 'USD3B';
-    } else {
-      // 第三个弹窗20%的折扣
-      discountCode = 'USD5Z';
-    }
-
-    dispatch({type: 'CLICK_BUY_BTN', discountCode});
-  };
 
   return (
     <>
@@ -87,40 +53,10 @@ export function Layout({children, layout}) {
                 Skip to content
               </a>
             </div>
-            {headerMenu && layout?.shop.name && isHome === false && (
-              <Header
-                title={layout.shop.name}
-                menu={headerMenu}
-                onOpen={onOpen}
-                onDiscountModalChange={onDiscountModalChange}
-                isDiscountModalOpen={isOpen}
-              />
-            )}
             <main role="main" id="mainContent" className="flex-grow">
               {children}
             </main>
-            {isHome == false && <MobileFooter clickBuyBtn={onClickMobileBuyBtn} />}
           </div>
-
-          {/* 弹窗遮罩 */}
-          <Modal
-            size="xs"
-            isOpen={isOpen}
-            onOpenChange={onDiscountModalChange}
-            placement={'center'}
-            backdrop={'opaque'}
-            className="z-50"
-          >
-            <ModalContent>
-              <ModalHeader className="flex flex-col gap-1"></ModalHeader>
-              <ModalBody>
-                <DiscountModal
-                  index={discountModalIndex}
-                  onClickBuyBtn={onClickMobileBuyBtn}
-                ></DiscountModal>
-              </ModalBody>
-            </ModalContent>
-          </Modal>
 
         </div>
 
@@ -166,14 +102,6 @@ function Header({
       {menu && (
         <MenuDrawer isOpen={isMenuOpen} onClose={closeMenu} menu={menu} />
       )}
-      <MobileHeader
-        title={title}
-        openCart={openCart}
-        openMenu={openMenu}
-        onOpen={onOpen}
-        onDiscountModalChange={onDiscountModalChange}
-        isDiscountModalOpen={isDiscountModalOpen}
-      />
     </>
   );
 }
@@ -252,79 +180,7 @@ function MenuMobileNav({menu, onClose}) {
  *   openMenu: () => void;
  * }}
  */
-function MobileHeader({
-  title,
-  isHome,
-  onOpen,
-  isDiscountModalOpen,
-  onDiscountModalChange,
-}) {
-  const params = useParams();
-  const dispatch = useDispatch();
 
-  const clickBackBtn = (e) => {
-    dispatch({type: 'CLICK_BACK_BTN'})
-    e.stopPropagation();
-    if (isDiscountModalOpen === true) {
-      onDiscountModalChange();
-      setTimeout(() => {
-        onOpen();
-      }, 300);
-    } else {
-      onOpen();
-    }
-  };
-
-  return (
-    <header
-      role="banner"
-      className={'bg-primary/80 dark:bg-contrast/60 text-contrast dark:text-primary shadow-darkHeader flex items-center h-14 fixed backdrop-blur-lg z-999 top-0 justify-between w-full md:w-96 leading-none gap-4 px-4'}
-    >
-      <Heading
-        className="font-bold text-center leading-none w-full"
-        as={isHome ? 'h1' : 'h2'}
-      >
-        <div className='w-full flex items-center justify-between'>
-          <div
-            className="flex flex-row justify-center items-center texl-6xl"
-            onClick={(e) => clickBackBtn(e)}
-          >
-            <LeftC theme="multi-color" size="28" fill={['#ffffff' ,'#ffffff' ,'#000000' ,'#ffffff']} />
-            <span className="text-xl ml-1 text-center">Back</span>
-          </div>
-          <div onClick={(e) => clickBackBtn(e)}>
-            <Close theme="outline" size="24" fill="#ffffff"/>
-          </div>
-        </div>
-      </Heading>
-    </header>
-  );
-}
-
-/**
- *
- */
-function MobileFooter({clickBuyBtn}) {
-  const clickBtn = (e) => {
-    clickBuyBtn();
-  };
-  return (
-    <div className="fixed w-full md:w-96 bottom-0 bg-white flex flex-col justify-center border-white items-center text-xl font-bold">
-      {/* 分割线 */}
-      <div className="divide-line w-screen md:w-96 h-px bg-gray-200">
-        <div className="h-px bg-gray-200"></div>
-      </div>
-      <div className="flex flex-row w-full px-4 justify-between items-center h-16 bg-white border-white">
-        <div
-          onClick={clickBtn}
-          className="mobile-footer-right-box flex justify-center items-center flex-1 h-11 bg-rose-500 border-white rounded-sm text-white text-xl"
-        >
-          Buy now
-        </div>
-      </div>
-    </div>
-  );
-}
 
 /**
  * @param {{
