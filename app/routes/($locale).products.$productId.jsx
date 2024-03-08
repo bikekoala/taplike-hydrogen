@@ -25,6 +25,7 @@ import {
   MobileHeader,
   DiscountModal
 } from '~/components';
+import { discountInfo } from '../data/discount';
 import {seoPayload} from '~/lib/seo.server';
 import {routeHeaders} from '~/data/cache';
 import {MEDIA_FRAGMENT} from '~/data/fragments';
@@ -182,25 +183,20 @@ export default function Product() {
   const [discountModalIndex, setDiscountModalIndex] = useState(0);
   const dispatch = useDispatch();
   
+  const productId = product.id.split('/').slice(-1)[0]
+  const discountConfig = discountInfo[productId]
   const onDiscountModalChange = () => {
     onOpenChange();
     setDiscountModalIndex((e) => e + 1);
   };
 
-  const onClickMobileBuyBtn = (index) => {
+  const onClickMobileBuyBtn = (config) => {
     let discountCode = '';
-    if (index === undefined) {
+    if (config === undefined) {
       // 没有折扣码
       discountCode = '';
-    } else if (index === 0) {
-      // 第一个弹窗$2的折扣
-      discountCode = 'USD2A';
-    } else if (index === 1) {
-      // 第二个弹窗$3的折扣
-      discountCode = 'USD3B';
     } else {
-      // 第三个弹窗20%的折扣
-      discountCode = 'USD5Z';
+      discountCode = config.code
     }
 
     dispatch({type: 'CLICK_BUY_BTN', discountCode});
@@ -344,6 +340,7 @@ export default function Product() {
                 <DiscountModal
                   index={discountModalIndex}
                   onClickBuyBtn={onClickMobileBuyBtn}
+                  discountConfig={discountConfig}
                 ></DiscountModal>
               </ModalBody>
             </ModalContent>
@@ -361,7 +358,7 @@ function MobileFooter({clickBuyBtn}) {
     clickBuyBtn();
   };
   return (
-    <div className="fixed w-full md:w-96 bottom-0 bg-white flex flex-col justify-center border-white items-center text-xl font-bold">
+    <div className="fixed w-full md:w-96 bottom-0 bg-white flex flex-col justify-center border-white items-center text-xl font-bold cursor-pointer">
       {/* 分割线 */}
       <div className="divide-line w-screen md:w-96 h-px bg-gray-200">
         <div className="h-px bg-gray-200"></div>
@@ -700,6 +697,10 @@ function sendPageEvent(
   data.productDescription = product.description;
   data.checkoutId = checkoutId;
   data.discountCode = discountCode;
+
+  if (pageInfo.page.indexOf('localhost') != -1) {
+    return
+  }
 
   const api = 'https://seller.taplike.com/api/common/hydrogen/trackEvent';
   //const api = 'http://10.20.1.10:30030/common/hydrogen/trackEvent';
