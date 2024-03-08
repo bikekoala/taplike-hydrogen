@@ -358,7 +358,7 @@ function MobileFooter({clickBuyBtn}) {
     clickBuyBtn();
   };
   return (
-    <div className="fixed w-full md:w-96 bottom-0 bg-white flex flex-col justify-center border-white items-center text-xl font-bold">
+    <div className="fixed w-full md:w-96 bottom-0 bg-white flex flex-col justify-center border-white items-center text-xl font-bold cursor-pointer">
       {/* 分割线 */}
       <div className="divide-line w-screen md:w-96 h-px bg-gray-200">
         <div className="h-px bg-gray-200"></div>

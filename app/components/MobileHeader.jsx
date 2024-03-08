@@ -32,7 +32,7 @@ export function MobileHeader({
       >
         <div className='w-full flex items-center justify-between'>
           <div
-            className="flex flex-row justify-center items-center texl-6xl"
+            className="flex flex-row justify-center items-center texl-6xl cursor-pointer"
             onClick={(e) => clickBackBtn(e)}
           >
             <LeftC theme="multi-color" size="28" fill={['#ffffff' ,'#ffffff' ,'#000000' ,'#ffffff']} />
@@ -40,6 +40,7 @@ export function MobileHeader({
           </div>
           <div 
           onClick={(e) => clickBackBtn(e)}
+          className="cursor-pointer"
           >
             <Close theme="outline" size="24" fill="#ffffff"/>
           </div>

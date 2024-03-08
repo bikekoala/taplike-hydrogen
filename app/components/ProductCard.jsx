@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import {flattenConnection, Image, Money, useMoney} from '@shopify/hydrogen';
-import {Text, Link, AddToCartButton, Button} from '~/components';
+import {Text, Link} from '~/components';
 import {isDiscounted, isNewArrival} from '~/lib/utils';
 import {getProductPlaceholder} from '~/lib/placeholders';
 
@@ -95,36 +95,6 @@ export function ProductCard({
         </div>
       </Link>
 
-
-      {quickAdd && firstVariant.availableForSale && (
-        <AddToCartButton
-          lines={[
-            {
-              quantity: 1,
-              merchandiseId: firstVariant.id,
-            },
-          ]}
-          variant="secondary"
-          className="mt-2"
-          analytics={{
-            products: [productAnalytics],
-            totalValue: parseFloat(productAnalytics.price),
-          }}
-        >
-          <Text as="span" className="flex items-center justify-center gap-2">
-            Add to Cart
-          </Text>
-        </AddToCartButton>
-      )}
-
-
-      {quickAdd && !firstVariant.availableForSale && (
-        <Button variant="secondary" className="mt-2" disabled>
-          <Text as="span" className="flex items-center justify-center gap-2">
-            Sold out
-          </Text>
-        </Button>
-      )}
     </div>
   );
 }
